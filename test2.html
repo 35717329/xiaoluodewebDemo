@@ -1,0 +1,661 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <title>Crash 验证器（克隆）</title>
+    <style>
+        :root {
+            --bg: #0b1220;
+            --card: #0f1724;
+            --muted: #9aa4b2;
+            --accent: #00d1b2;
+            --glass: rgba(255, 255, 255, 0.03)
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: linear-gradient(180deg, #071122 0%, #0b1220 100%);
+            font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+            color: #e6eef6
+        }
+
+        .wrap {
+            max-width: 1280px;
+            margin: 48px auto;
+            padding: 28px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
+            border-radius: 12px;
+            box-shadow: 0 6px 30px rgba(2, 6, 23, 0.6)
+        }
+
+        h1 {
+            margin: 0 0 6px;
+            font-size: 20px
+        }
+
+        p.lead {
+            margin: 0 0 18px;
+            color: var(--muted)
+        }
+
+        .form {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap
+        }
+
+        .field {
+            flex: 1 1 220px;
+            min-width: 220px
+        }
+
+        label {
+            display: block;
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 8px
+        }
+
+        input[type=text], input[type=number] {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            background: var(--card);
+            color: inherit
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            background: linear-gradient(90deg, var(--accent), #00a88f);
+            color: #021217;
+            font-weight: 700;
+            border: none;
+            cursor: pointer
+        }
+
+        .btn.secondary {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            color: var(--muted);
+            font-weight: 600
+        }
+
+        .controls {
+            margin-top: 14px;
+            display: flex;
+            gap: 10px
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 18px
+        }
+
+        th, td {
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.03)
+        }
+
+        th {
+            font-size: 12px;
+            color: var(--muted)
+        }
+
+        td.mult {
+            font-weight: 700;
+            color: #f3c26b
+        }
+
+        .small {
+            font-size: 13px;
+            color: var(--muted)
+        }
+
+        .muted {
+            color: var(--muted)
+        }
+
+        .hint {
+            margin-top: 10px;
+            color: var(--muted);
+            font-size: 13px
+        }
+
+        .copy {
+            cursor: pointer;
+            padding: 6px 8px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            background: var(--glass);
+            font-size: 12px
+        }
+
+        /* 确保容器不会超出页面 */
+        .tables-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            width: 100%;
+            max-width: 100%; /* 确保不超过父容器 */
+            box-sizing: border-box; /* 包含内边距和边框在宽度内 */
+        }
+
+        /* 表格样式优化 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid #ddd;
+            table-layout: fixed; /* 固定布局，均匀分配列宽 */
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px 12px;
+            text-align: left;
+            word-wrap: break-word; /* 允许长单词换行 */
+            overflow-wrap: break-word; /* 现代浏览器的换行属性 */
+            max-width: 0; /* 配合table-layout: fixed使用 */
+        }
+
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        /* 如果内容仍然过长，添加水平滚动 */
+        .table-wrapper {
+            overflow-x: auto;
+            max-width: 100%;
+        }
+
+        /* 响应式设计：小屏幕上垂直堆叠 */
+        @media (max-width: 768px) {
+            .tables-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /*@media (max-width: 720px) {*/
+        /*    .form {*/
+        /*        flex-direction: column*/
+        /*    }*/
+
+        /*    .controls {*/
+        /*        flex-direction: column*/
+        /*    }*/
+        /*}*/
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <h1>Crash 验证器（克隆）</h1>
+    <p class="lead">对战游戏的 hash / salt 并验证历史结果 —— 这是一个前端克隆，仅复现界面和本地计算示例。</p>
+    <div class="form" role="form">
+        <div class="field">
+            <label id="player1">玩家一 :</label>
+        </div>
+        <div class="field">
+            <label id="player2">玩家二 :</label>
+        </div>
+    </div>
+    <div class="form" role="form">
+        <div class="field">
+            <label for="player1Sign">签名</label>
+            <input disabled id="player1Sign" type="text" value=""/>
+        </div>
+
+        <div class="field">
+            <label for="player1Hash">区块哈希</label>
+            <input disabled id="player1Hash" type="text" value=""/>
+        </div>
+        <div class="field">
+            <label for="player2Sign">签名</label>
+            <input disabled  id="player2Sign" type="text" value=""/>
+        </div>
+
+        <div class="field">
+            <label for="player2Hash">区块哈希</label>
+            <input disabled id="player2Hash" type="text" value=""/>
+        </div>
+
+        <div class="field">
+            <label for="count">Amount of games</label>
+            <input id="count" type="number" value="1" min="1" max="100"/>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button id="verifyBtn" class="btn">Verify</button>
+        <button id="clearBtn" class="btn secondary">Clear results</button>
+        <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+            <span class="small muted">结果格式：</span>
+            <span class="small">签名 → Bust</span>
+        </div>
+    </div>
+
+    <div class="hint">
+        注意：本页面只是界面与本地演示，计算规则与原站点可能不同。若需完全一致的验证算法，请提供原站点的算法或允许我抓取并复现。
+    </div>
+
+<!--    <table id="resultTable" aria-live="polite">-->
+<!--        <thead>-->
+<!--        <tr>-->
+<!--            <th>签名</th>-->
+<!--            <th>Bust</th>-->
+<!--        </tr>-->
+<!--        </thead>-->
+<!--        <tbody id="t1body"></tbody>-->
+<!--        <thead>-->
+<!--        <tr>-->
+<!--            <th>签名</th>-->
+<!--            <th>Bust</th>-->
+<!--        </tr>-->
+<!--        </thead>-->
+<!--        <tbody id="t2body"></tbody>-->
+<!--    </table>-->
+    <div class="tables-container">
+        <table id="resultTable1" aria-live="polite">
+            <thead>
+            <tr>
+                <th>玩家一签名</th>
+                <th>Bust</th>
+            </tr>
+            </thead>
+            <tbody id="t1body"></tbody>
+        </table>
+
+        <table id="resultTable2" aria-live="polite">
+            <thead>
+            <tr>
+                <th>玩家二签名</th>
+                <th>Bust</th>
+            </tr>
+            </thead>
+            <tbody id="t2body"></tbody>
+        </table>
+    </div>
+</div>
+<!--<script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.86.0/lib/index.iife.js"></script>-->
+<!--<script src="web3.js"></script>-->
+<script type="module">
+    //import { PublicKey } from 'https://cdn.jsdelivr.net/npm/@solana/web3.js@1.86.0/lib/index.esm.js';
+    import bs58 from "https://cdn.jsdelivr.net/npm/bs58@5.0.0/+esm";
+    // const { bs58 } = window.solanaWeb3;
+
+    async function extractBs58FromIife(url) {
+        const text = await fetch(url).then(r => r.text());
+
+        // 1) 用正则尝试找到 var bs58$1 = (function (...) { ... })();
+        const re = /var\s+(bs58\$1)\s*=\s*(\(function[\s\S]*?\}\)\s*\(\s*\)\s*);/m;
+        const m = text.match(re);
+        if (!m) throw new Error('没有找到 bs58$1 定义（正则失败）');
+
+        // 提取到的实现字符串
+        const impl = m[2];
+
+        // 2) 在一个安全的沙箱式作用域里 eval 实现，返回值赋给本地变量
+        // 注意：eval 有安全风险
+        const wrapper = `
+    (function(){
+      const module = {exports: {}};
+      const exports = module.exports;
+      // 为避免污染全局，尽量在局部执行
+      const bs58Local = ${impl};
+      return bs58Local;
+    })()
+  `;
+        const bs58 = (new Function(wrapper))();
+        return bs58;
+    }
+
+    // 用法
+    extractBs58FromIife('https://cdn.jsdelivr.net/npm/@solana/web3.js@1.86.0/lib/index.iife.js')
+        .then(bs58 => {
+            console.log('got bs58', typeof bs58.encode, typeof bs58.decode);
+            console.log(bs58.encode(new Uint8Array([1,2,3])));
+        })
+        .catch(console.error);
+
+    // var ee=window.solanaWeb3;
+    // var ee2=Object.getPrototypeOf(window.solanaWeb3);
+    // var ss = window.solanaWeb3.__proto__["bs58$1"];
+    // var ss2 = window.solanaWeb3.__proto__["bs58"];
+    // var ss3 = window.solanaWeb3.getDefaultExportFromCjs;
+    // var ss4 = Object.getOwnPropertyNames(window.solanaWeb3);
+    // const decoded = bs58.decode("gggg");
+
+    // helper: utf8 -> hex
+    //TODO 加密算法去看签名（好像是base58）,和后端的归一化是否一致，这些TextEncoder的函数
+    // 相关如 URLSearchParams 类浏览器是否支持（Chrome，Firefox（fookbook），Safari(苹果)）
+
+    // function buf2hex(buffer) {
+    //     return [...new Uint8Array(buffer)].map(b => b.toString(16).padStart(2, '0')).join('')
+    // }
+    //
+    // async function sha256Hex(str) {
+    //     const enc = new TextEncoder();
+    //     const data = enc.encode(str);
+    //     const hash = await crypto.subtle.digest('SHA-256', data);
+    //     return buf2hex(hash);
+    // }
+
+    //SHA-25 哈希编码函数  这是一个异步函数
+    async function hashData(data) {
+        // 使用Web Crypto API计算哈希
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        const hashArray = new Uint8Array(hashBuffer);
+        return hashArray;
+    }
+
+    //base 解码
+    // function base58Decode(str) {
+    //     const alphabet = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+    //     const base = BigInt(alphabet.length);
+    //     let num = BigInt(0);
+    //
+    //     for (let char of str) {
+    //         const index = alphabet.indexOf(char);
+    //         if (index < 0) {
+    //             throw new Error(`Invalid Base58 character: ${char}`);
+    //         }
+    //         num = num * base + BigInt(index);
+    //     }
+    //
+    //     // 转换为字节数组
+    //     let bytes = [];
+    //     while (num > 0) {
+    //         bytes.unshift(Number(num % 256n));
+    //         num = num / 256n;
+    //     }
+    //
+    //     // 处理前导“1”对应的前导零字节
+    //     for (let char of str) {
+    //         if (char === '1') bytes.unshift(0);
+    //         else break;
+    //     }
+    //
+    //     return new Uint8Array(bytes);
+    // }
+
+    // //base58解码
+    // // 纯原生 Base58 字母表
+    // const ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+    // const BASE = 58;
+    //
+    // // Base58 解码
+    // function base58Decode(str) {
+    //     let bytes = [0];
+    //     for (let char of str) {
+    //         const value = ALPHABET.indexOf(char);
+    //         if (value < 0) throw new Error(`Invalid Base58 character: ${char}`);
+    //         let carry = value;
+    //         for (let i = 0; i < bytes.length; i++) {
+    //             carry += bytes[i] * BASE;
+    //             bytes[i] = carry & 0xff;
+    //             carry >>= 8;
+    //         }
+    //         while (carry > 0) {
+    //             bytes.push(carry & 0xff);
+    //             carry >>= 8;
+    //         }
+    //     }
+    //     // 处理前导零
+    //     for (let c of str) {
+    //         if (c === '1') bytes.push(0);
+    //         else break;
+    //     }
+    //     return new Uint8Array(bytes.reverse());
+    // }
+
+    // 归一化函数（异步，因为 Web Crypto 的 digest 是 Promise）
+    async function normalizeHash(decoded) {
+        try {
+            const hashArray = Array.from(decoded);
+
+            // 2. 转为大整数（BigInt）
+            let hashValue = 0n;
+            for (const byte of hashArray) {
+                hashValue = (hashValue << 8n) + BigInt(byte);
+            }
+
+            // 3. 最大值 2^256 - 1
+            const maxValue = (1n << 256n) - 1n;
+
+            // 4. 归一化为 [0, 1]
+            const normalized = Number(hashValue) / Number(maxValue);
+            return normalized;
+        } catch (e) {
+            console.error(e);
+            return 0;
+        }
+    }
+
+    //归一化函数
+    // async function hashDataNormalized(data) {
+    //     data = Base58.toSignedArray(Base58.decode(data))
+    //     let a = hashData(data)
+    //     // let encoder = new TextEncoder();
+    //     // let dataBuffer = encoder.encode(data);
+    //     // let hashBuffer = await crypto.subtle.digest('SHA-256', dataBuffer);
+    //     // let hashArray = Array.from(new Uint8Array(hashBuffer));
+    //     //
+    //     // // 将哈希视作一个大整数并转为 [0,1) 的浮点数
+    //     // let value = 0n;
+    //     // for (const byte of hashArray) {
+    //     //     value = (value << 8n) + BigInt(byte);
+    //     // }
+    //     // let max = (1n << BigInt(hashArray.length * 8)) - 1n;
+    //     // let normalized = Number(value) / Number(max);
+    //     //
+    //     // return normalized; // 介于0~1之间的数
+    // }
+
+    //转16进制
+    // simple deterministic bust conversion: take first 13 hex chars -> int -> map to [1.00, 100.00]
+    // function hexToBust(hex) {
+    //     // take first 13 chars (52 bits approx)
+    //     const slice = hex.slice(0, 13);
+    //     const val = parseInt(slice, 16);
+    //     // map to multiplier between 1.00 and 100.00
+    //     const max = Math.pow(16, 13);
+    //     const ratio = val / (max - 1);
+    //     const mult = 1 + ratio * 99; // from 1.00 to 100.00
+    //     return Math.max(1, Math.floor(mult * 100) / 100).toFixed(2);
+    // }
+
+    //随机数=guiyi(sha25(签名+区块hash))
+    // function randomValue(hex){
+    //     sha256Hex(hex)
+    //    return
+    // }
+
+    // function getQueryString(name) {
+    //     var reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)', 'i');
+    //     var r = window.location.search.substr(1).match(reg);
+    //     if (r != null) {
+    //         return unescape(r[2]);
+    //     }
+    //     return null;
+    // }
+    function getQueryString(name) {
+        // 转义正则特殊字符，防止注入攻击
+        var escapedName = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        var reg = new RegExp('[?&]' + escapedName + '=([^&]*)', 'i');
+        var match = window.location.search.match(reg);
+        if (match && match[1]) {
+            return match[1];//decodeURIComponent(match[1].replace(/\+/g, ' '));
+        }
+        return null;
+    }
+
+    const player1Name = document.getElementById('player1');
+    const player2Name = document.getElementById('player2');
+    const player1Sign = document.getElementById('player1Sign');
+    const player2Sign = document.getElementById('player2Sign');
+    const player1Hash = document.getElementById('player1Hash');
+    const player2Hash = document.getElementById('player2Hash');
+    const countEl = document.getElementById('count');
+    const verifyBtn = document.getElementById('verifyBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const t1body = document.getElementById('t1body');
+    const t2body = document.getElementById('t2body');
+
+    async function createElementItem(st1,bh1,st2,bh2){
+        console.log("hello world")
+        verifyBtn.disabled = true;
+        verifyBtn.textContent = 'Verifying...';
+        t1body.innerHTML = '';
+        t2body.innerHTML = '';
+        let count = parseInt(countEl.value) || 1;
+        // // 1. 自己实现的Base58 解码
+        // const decoded1 = base58Decode(st);
+        // const decoded2 = base58Decode(bh);
+        // //1. bs58 解码
+        const decoded1 = bs58.decode(st1);
+        const decoded2 = bs58.decode(bh1);
+        const decoded3 = bs58.decode(st2);
+        const decoded4 = bs58.decode(bh2);
+        // // 1. solanaPublickey 解码
+        // const decoded2 = new PublicKey(bh).toBuffer;
+        // const decoded1 = new PublicKey(st).toBuffer;
+        // === 合并两个字节数组 ===
+        var player1Combined = new Uint8Array(decoded1.length + decoded2.length);
+        var player2Combined = new Uint8Array(decoded3.length + decoded4.length);
+        player1Combined.set(decoded1, 0);
+        player1Combined.set(decoded2, decoded1.length);
+        player2Combined.set(decoded3, 0);
+        player2Combined.set(decoded4, decoded3.length);
+        var player1Base58Value = "";
+        var player2Base58Value = "";
+        for (let i = 0; i < count; i++) {
+            player1Combined = await hashData(player1Combined);
+            player2Combined = await hashData(player2Combined);
+            player1Base58Value = bs58.encode(player1Combined)
+            player2Base58Value = bs58.encode(player2Combined)
+            const player1bust = await normalizeHash(player1Combined);
+            const player2bust = await normalizeHash(player2Combined);
+            //加密之后再成为下一个结果
+
+            const tr1 = document.createElement('tr');
+            const td1 = document.createElement('td');
+            td1.textContent = player1Base58Value;
+            const td2 = document.createElement('td');
+            td2.textContent = `${player1bust}x`;
+            td2.className = 'mult';
+            tr1.appendChild(td1);
+            tr1.appendChild(td2);
+            t1body.appendChild(tr1);
+
+            const tr2 = document.createElement('tr');
+            const td3 = document.createElement('td');
+            td3.textContent = player2Base58Value;
+            const td4 = document.createElement('td');
+            td4.textContent = `${player2bust}x`;
+            td4.className = 'mult';
+            tr2.appendChild(td3);
+            tr2.appendChild(td4);
+            t2body.appendChild(tr2);
+        }
+        verifyBtn.disabled = false;
+        verifyBtn.textContent = 'Verify';
+    }
+    function getUrlParams() {
+        const params = new URLSearchParams(window.location.search);
+        return {
+            player1: params.get('player1Name'),
+            player2: params.get('player2Name'),
+            player1Sign: params.get('player1Sign'),
+            player1Hash: params.get('player1Hash'),
+            player2Sign: params.get('player2Sign'),
+            player2Hash: params.get('player2Hash'),
+        };
+    }
+    function updatePage() {
+        const { player1, player2, player1Sign: p1Sign, player1Hash: p1Hash, player2Sign: p2Sign, player2Hash: p2Hash } = getUrlParams();
+        if (player1) {
+            player1Name.textContent = `玩家一 : ${player1}`;
+        }
+        if (player2) {
+            player2Name.textContent = `玩家二 : ${player2}`;
+        }
+        if (p1Sign) {
+            player1Sign.value = p1Sign;  // 使用重命名后的变量
+        }
+        if (p1Hash) {
+            player1Hash.value = p1Hash;  // 使用重命名后的变量
+        }
+        if (p2Sign) {
+            player2Sign.value = p2Sign;  // 使用重命名后的变量
+        }
+        if (p2Hash) {
+            player2Hash.value = p2Hash;  // 使用重命名后的变量
+        }
+    }
+    async function showHash() {
+        updatePage()
+        const { player1, player2, player1Sign: p1Sign, player1Hash: p1Hash, player2Sign: p2Sign, player2Hash: p2Hash } = getUrlParams();
+        await createElementItem(p1Sign,p1Hash,p2Sign,p2Hash)
+    }
+
+    verifyBtn.addEventListener('click', async () => {
+        const { player1, player2, player1Sign: p1Sign, player1Hash: p1Hash, player2Sign: p2Sign, player2Hash: p2Hash } = getUrlParams();
+        if (!p1Hash) {
+            alert('请输入 Game\'s hash');
+            return
+        }
+        if (!p1Sign) {
+            alert('请输入 Sign');
+            return
+        }
+        if (!p2Hash) {
+            alert('请输入 Game\'s hash');
+            return
+        }
+        if (!p2Sign) {
+            alert('请输入 Sign');
+            return
+        }
+        //let h = gh + salt;
+        await createElementItem(p1Sign,p1Hash,p2Sign,p2Hash)
+        // for (let i = 0; i < count; i++) {
+        //     const input = `${gh}:${salt}:${i}`;
+        //     console.log("输入",input,gh,salt,i)
+        //     const h = await hashData(input);
+        //     const bust = hexToBust(h);
+        //     const tr = document.createElement('tr');
+        //     const td1 = document.createElement('td');
+        //     td1.textContent = h;
+        //     const td2 = document.createElement('td');
+        //     td2.textContent = `${bust}x`;
+        //     td2.className = 'mult';
+        //     tr.appendChild(td1);
+        //     tr.appendChild(td2);
+        //     tbody.appendChild(tr);
+        // }
+    });
+
+    clearBtn.addEventListener('click', () => {
+        tbody.innerHTML = ''
+    });
+    // convenience: press Enter in any field triggers verify
+    // [gameHashEl, saltEl, countEl].forEach(el => el.addEventListener('keydown', e => {
+    //     if (e.key === 'Enter') verifyBtn.click()
+    // }));
+    showHash();
+
+</script>
+</body>
+</html>
