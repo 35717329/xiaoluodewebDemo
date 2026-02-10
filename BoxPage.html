@@ -540,23 +540,46 @@
 <script type="module">
     import bs58 from "https://cdn.jsdelivr.net/npm/bs58@5.0.0/+esm";
 
+    window.onload = function() {
+        const result = getUrlParams();
+        document.getElementById("round").value = result.round;
+        document.getElementById("blockNum").value = result.blockNum;
+        document.getElementById("blockHash").value = result.blockHash;
+        document.getElementById("userSign").value = result.userSign;
+        verifyGames();
+    };
+
     // 获取URL参数
     function getUrlParams() {
-        const params = new URLSearchParams(window.location.search);
-        const playerCount = parseInt(params.get('playerCount')) || 2;
-
-        // 确保玩家数量在2-3之间
-        const validatedPlayerCount = Math.min(Math.max(playerCount, 2), 3);
-
-        const result = {playerCount: validatedPlayerCount};
-
-        // 动态获取玩家数据
-        for (let i = 1; i <= validatedPlayerCount; i++) {
-            result[`player${i}Name`] = params.get(`player${i}Name`) || `玩家${i}`;
-            result[`player${i}Sign`] = params.get(`player${i}Sign`);
-            result[`player${i}Hash`] = params.get(`player${i}Hash`);
+        const result = {};
+        let round = getQueryString("round");
+        let userSign = getQueryString("userSign");
+        let blockNum = getQueryString("blockNum");
+        let blockHash = getQueryString("blockHash");
+        console.log("round: ", round);
+        console.log("userSign: ", userSign);
+        console.log("blockNum: ", blockNum);
+        console.log("blockHash: ", blockHash);
+        if(round!=null){
+            result['round'] = round;
+        }else{
+            result['round'] = "";
         }
-
+        if(userSign!=null){
+            result['userSign'] = userSign;
+        }else{
+            result['userSign'] = "";
+        }
+        if(blockNum!=null){
+            result['blockNum'] = blockNum;
+        }else{
+            result['blockNum'] = "";
+        }
+        if(blockHash!=null){
+            result['blockHash'] = blockHash;
+        }else{
+            result['blockHash'] = "";
+        }
         return result;
     }
 
@@ -733,6 +756,14 @@
 
     // 页面加载完成后初始化
     document.addEventListener('DOMContentLoaded', initPage);
+    function getQueryString(name) {
+        var reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)', 'i');
+        var r = window.location.search.substr(1).match(reg);
+        if (r != null) {
+            return unescape(r[2]);
+        }
+        return null;
+    }
 </script>
 
 
