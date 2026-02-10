@@ -540,15 +540,6 @@
 <script type="module">
     import bs58 from "https://cdn.jsdelivr.net/npm/bs58@5.0.0/+esm";
 
-    window.onload = function() {
-        const result = getUrlParams();
-        document.getElementById("round").value = result.round;
-        document.getElementById("blockNum").value = result.blockNum;
-        document.getElementById("blockHash").value = result.blockHash;
-        document.getElementById("userSign").value = result.userSign;
-        verifyGames();
-    };
-
     // 获取URL参数
     function getUrlParams() {
         const result = {};
@@ -674,11 +665,12 @@
 
     // 初始化页面
     function initPage() {
-        const params = getUrlParams();
-
-
+        const result = getUrlParams();
+        document.getElementById("round").value = result.round;
+        document.getElementById("blockNum").value = result.blockNum;
+        document.getElementById("blockHash").value = result.blockHash;
+        document.getElementById("userSign").value = result.userSign;
         initEmptyResult();
-
         const verifyBtn = document.getElementById('verifyBtn');
         const clearBtn = document.getElementById('clearBtn');
         const countInput = document.getElementById('round');
@@ -717,6 +709,8 @@
                 verifyBtn.click();
             }
         });
+
+        verifyGames();
     }
 
     function initEmptyResult() {

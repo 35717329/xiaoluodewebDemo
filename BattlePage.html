@@ -578,15 +578,18 @@
 <script type="module">
     import bs58 from "https://cdn.jsdelivr.net/npm/bs58@5.0.0/+esm";
 
+    let userNum = 2;
+
     // 获取URL参数
     function getUrlParams() {
+        debugger;
         const params = new URLSearchParams(window.location.search);
         const playerCount = parseInt(params.get('playerCount')) || 2;
 
         // 确保玩家数量在2-3之间
         const validatedPlayerCount = Math.min(Math.max(playerCount, 2), 3);
-
-        const result = {playerCount: validatedPlayerCount};
+        const round = params.get(`round`)||5;
+        const result = {playerCount: validatedPlayerCount,round:round};
 
         // 动态获取玩家数据
         for (let i = 1; i <= validatedPlayerCount; i++) {
@@ -677,13 +680,14 @@
         }
     }
 
-    let userNum = 2;
+    
 
     // 初始化页面
     function initPage() {
         const params = getUrlParams();
-
-        initUserResByNum();
+        userNum = params.playerCount;
+        document.getElementById('round').value = params.round;
+        initUserResByNum(params);
         initEmptyResult();
 
 
@@ -707,6 +711,7 @@
                 verifyBtn.click();
             }
         });
+        verifyGames();
     }
 
     function initEmptyResult() {
@@ -721,25 +726,36 @@
 
     }
 
-    function initUserResByNum() {
+    function initUserResByNum(params) {
         let str = ``;
+    // 提取result对象中的签名和哈希数据
+        const validatedPlayerCount = params.playerCount;
+        let userSign = [];
+        let blockHash = [];
+        let userName = [];
+        
+        // 循环提取每个玩家的数据
+        for (let i = 1; i <= validatedPlayerCount; i++) {
+            userSign.push(params[`player${i}Sign`] || "");
+            blockHash.push(params[`player${i}Hash`] || "");
+            userName.push(params[`player${i}Name`] || "");
+        }
 
         //todo:测试
-        let userSign = [
-            "4cA8PYxikCcjaAF4BvxMqq4TEdyrt6M2PXeVfLwAMd1iMf4gX85ibzdme8PC9Fi9rTiWGyohgCSDgUcaVgATRN8w",
-            "2gpj3sQtE8rR5xxW78hrDxFiZchdTn3GAwk2pqrHQStkBaCP3BaKBESZ5qijcbDstmosHmxiTenJcPb7d73GD9CC",
-        ]
-        let blockHash = [
-            "66666666666",
-            "66666666666",
-        ]
-
+        //let userSign = [
+            //"4cA8PYxikCcjaAF4BvxMqq4TEdyrt6M2PXeVfLwAMd1iMf4gX85ibzdme8PC9Fi9rTiWGyohgCSDgUcaVgATRN8w",
+            //"2gpj3sQtE8rR5xxW78hrDxFiZchdTn3GAwk2pqrHQStkBaCP3BaKBESZ5qijcbDstmosHmxiTenJcPb7d73GD9CC",
+       // ]
+       // let blockHash = [
+            //"66666666666",
+            //"66666666666",
+       // ]
         for (let i = 0; i < userNum; i++) {
             str += `
                <div id="user_${i}" class="result-info-item">
                     <div class="result-info-card">
                         <div class="result-info-card-item">
-                            <span style="color: #00C1A4; font-size: 22px">用户名称</span>
+                            <span style="color: #00C1A4; font-size: 22px">${userName[i]}</span>
                         </div>
                         <div class="result-info-card-item">
                             <div>
