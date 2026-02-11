@@ -121,31 +121,10 @@
             padding: 8px;
             border: 1px solid rgba(255, 255, 255, 0.05);
             transition: all 0.3s ease;
-            display: grid;
-            grid-template-columns: 1fr auto;
-            align-items: center;
-            gap: 12px;
+            width: 100%;
         }
 
-        /*
-        * 对 result-round 样式下的 div-unEdit-txt 下的 span:first-child 第一个span做处理
-        */
-        .result-round .div-unEdit-txt span:first-child {
-            word-break: break-word;
-            overflow-wrap: break-word;
-        }
-
-
-        /*
-        * 对 result-round 样式下的 div-unEdit-txt 下的 span:first-child 最后一个span做处理
-        */
-        .result-round .div-unEdit-txt span:last-child {
-            color: #35DDDD;
-            font-weight: 600;
-            white-space: nowrap;
-        }
-
-        .div-unEdit-txt span:last-child {
+        .div-unEdit-txt span {
             color: #C8D8F8;
         }
 
@@ -166,13 +145,9 @@
 
         .result-info {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(1, 1fr);
             margin-bottom: 24px;
             background-color: #0D1726;
-        }
-
-        .result-info-item {
-            margin: 4px;
         }
 
         .result-info-card {
@@ -194,6 +169,7 @@
         }
 
         .result-round {
+            display: grid;
             justify-items: center;
         }
 
@@ -447,7 +423,7 @@
 <body>
 <div class="container">
     <div class="header">
-        <h1>《对战》</h1>
+        <h1>《ROLL房》</h1>
         <!-- <p>流程正常，未从URL中获取参数，修改getUrlParams()，完善细节</p> -->
     </div>
 
@@ -478,19 +454,7 @@
                 <div class="game-info-item">
                     <span>游戏模式</span>
                     <div class="div-unEdit-txt">
-                        <span id="battleMode"></span>
-                    </div>
-                </div>
-                <div class="game-info-item">
-                    <span>创建者</span>
-                    <div class="div-unEdit-txt">
-                        <span id="createUser"></span>
-                    </div>
-                </div>
-                <div class="game-info-item">
-                    <span>参与玩家</span>
-                    <div class="div-unEdit-txt">
-                        <span id="joinNum"></span>
+                        <span>ROLL房</span>
                     </div>
                 </div>
                 <div class="game-info-item">
@@ -516,57 +480,55 @@
         <div class="card-header">
             <h2>开奖Hash</h2>
         </div>
-        <div id="userResult" class="result-info">
-            <!--            <div id="" class="result-info-item">-->
-            <!--                <div class="result-info-card">-->
-            <!--                    <div class="result-info-card-item">-->
-            <!--                        <span style="color: #00C1A4; font-size: 22px">用户名称</span>-->
-            <!--                    </div>-->
-            <!--                    <div class="result-info-card-item">-->
-            <!--                        <div>-->
-            <!--                            <span class="title">签名</span>-->
-            <!--                            <a href="https://www.baidu.com" style="color: #28CFA5; float: right">在Solana查看 &gt; </a>-->
-            <!--                        </div>-->
-            <!--                        <div class="div-unEdit-txt">-->
-            <!--                            <input id="userSign" value="4cA8PYxikCcjaAF4BvxMqq4TEdyrt6M2PXeVfLwAMd1iMf4gX85ibzdme8PC9Fi9rTiWGyohgCSDgUcaVgATRN8w">-->
-            <!--                        </div>-->
-            <!--                    </div>-->
-            <!--                    <div class="result-info-card-item">-->
-            <!--                        <span class="title">区块号</span>-->
-            <!--                        <div class="div-unEdit-txt">-->
-            <!--                            <input id="blockNum" value="132412341243">-->
-            <!--                        </div>-->
-            <!--                    </div>-->
-            <!--                    <div class="result-info-card-item">-->
-            <!--                        <span class="title">区块哈希</span>-->
-            <!--                        <div class="div-unEdit-txt">-->
-            <!--                            <input id="blockHash" value="66666666666">-->
-            <!--                        </div>-->
-            <!--                    </div>-->
-            <!--                </div>-->
-            <!--                <div class="result-info-card">-->
-            <!--                    <div class="result-info-card-item">-->
-            <!--                        <div>-->
-            <!--                            <span style="font-size: 14px; color: #3B5580;">hash</span>-->
-            <!--                            <span style="font-size: 14px; color: #3B5580; float: right">区间值</span>-->
-            <!--                        </div>-->
-            <!--                    </div>-->
-            <!--                    <div class="result-info-card-item result-round" id="resultRound">-->
-            <!--                        <span>点击 "验证结果" 按钮，进行验证</span>-->
-            <!--                        &lt;!&ndash;                    <span>测试用例</span>&ndash;&gt;-->
-            <!--                        &lt;!&ndash;                    <div class="div-round">1回合·使用区块hash进行sha256运算</div>&ndash;&gt;-->
-            <!--                        &lt;!&ndash;                    <div class="div-unEdit-txt">&ndash;&gt;-->
-            <!--                        &lt;!&ndash;                        <span>13241wtrtsghgrs2341243</span>&ndash;&gt;-->
-            <!--                        &lt;!&ndash;                        <span style="float: right">0.88888</span>&ndash;&gt;-->
-            <!--                        &lt;!&ndash;                    </div>&ndash;&gt;-->
-            <!--                        &lt;!&ndash;                    <div class="div-round">1回合·使用区块hash进行sha256运算</div>&ndash;&gt;-->
-            <!--                        &lt;!&ndash;                    <div class="div-unEdit-txt">&ndash;&gt;-->
-            <!--                        &lt;!&ndash;                        <span>13241wtrtsghgrs2341243</span>&ndash;&gt;-->
-            <!--                        &lt;!&ndash;                        <span style="float: right">0.88888</span>&ndash;&gt;-->
-            <!--                        &lt;!&ndash;                    </div>&ndash;&gt;-->
-            <!--                    </div>-->
-            <!--                </div>-->
-            <!--            </div>-->
+        <div class="result-info">
+            <div class="result-info-card">
+                <div class="result-info-card-item">
+                    <span style="color: #00C1A4; font-size: 22px">用户名称</span>
+                </div>
+                <div class="result-info-card-item">
+                    <div>
+                        <span class="title">签名</span>
+                        <a href="https://www.baidu.com" style="color: #28CFA5; float: right">在Solana查看 &gt; </a>
+                    </div>
+                    <div class="div-unEdit-txt">
+                        <input id="userSign" value="4cA8PYxikCcjaAF4BvxMqq4TEdyrt6M2PXeVfLwAMd1iMf4gX85ibzdme8PC9Fi9rTiWGyohgCSDgUcaVgATRN8w">
+                    </div>
+                </div>
+                <div class="result-info-card-item">
+                    <span class="title">区块号</span>
+                    <div class="div-unEdit-txt">
+                        <input id="blockNum" value="132412341243">
+                    </div>
+                </div>
+                <div class="result-info-card-item">
+                    <span class="title">区块哈希</span>
+                    <div class="div-unEdit-txt">
+                        <input id="blockHash" value="66666666666">
+                    </div>
+                </div>
+            </div>
+            <div class="result-info-card">
+                <div class="result-info-card-item">
+                    <div>
+                        <span style="font-size: 14px; color: #3B5580;">hash</span>
+                        <span style="font-size: 14px; color: #3B5580; float: right">区间值</span>
+                    </div>
+                </div>
+                <div class="result-info-card-item result-round" id="resultRound">
+                    <span>点击 "验证结果" 按钮，进行验证</span>
+                    <!--                    <span>测试用例</span>-->
+                    <!--                    <div class="div-round">1回合·使用区块hash进行sha256运算</div>-->
+                    <!--                    <div class="div-unEdit-txt">-->
+                    <!--                        <span>13241wtrtsghgrs2341243</span>-->
+                    <!--                        <span style="float: right">0.88888</span>-->
+                    <!--                    </div>-->
+                    <!--                    <div class="div-round">1回合·使用区块hash进行sha256运算</div>-->
+                    <!--                    <div class="div-unEdit-txt">-->
+                    <!--                        <span>13241wtrtsghgrs2341243</span>-->
+                    <!--                        <span style="float: right">0.88888</span>-->
+                    <!--                    </div>-->
+                </div>
+            </div>
         </div>
     </div>
 
@@ -578,26 +540,37 @@
 <script type="module">
     import bs58 from "https://cdn.jsdelivr.net/npm/bs58@5.0.0/+esm";
 
-    let userNum = 2;
-
     // 获取URL参数
     function getUrlParams() {
-        debugger;
-        const params = new URLSearchParams(window.location.search);
-        const playerCount = parseInt(params.get('playerCount')) || 2;
-
-        // 确保玩家数量在2-3之间
-        const validatedPlayerCount = Math.min(Math.max(playerCount, 2), 3);
-        const round = params.get(`round`)||5;
-        const result = {playerCount: validatedPlayerCount,round:round};
-
-        // 动态获取玩家数据
-        for (let i = 1; i <= validatedPlayerCount; i++) {
-            result[`player${i}Name`] = params.get(`player${i}Name`) || `玩家${i}`;
-            result[`player${i}Sign`] = params.get(`player${i}Sign`);
-            result[`player${i}Hash`] = params.get(`player${i}Hash`);
+        const result = {};
+        let round = getQueryString("round");
+        let userSign = getQueryString("userSign");
+        let blockNum = getQueryString("blockNum");
+        let blockHash = getQueryString("blockHash");
+        console.log("round: ", round);
+        console.log("userSign: ", userSign);
+        console.log("blockNum: ", blockNum);
+        console.log("blockHash: ", blockHash);
+        if(round!=null){
+            result['round'] = round;
+        }else{
+            result['round'] = "";
         }
-
+        if(userSign!=null){
+            result['userSign'] = userSign;
+        }else{
+            result['userSign'] = "";
+        }
+        if(blockNum!=null){
+            result['blockNum'] = blockNum;
+        }else{
+            result['blockNum'] = "";
+        }
+        if(blockHash!=null){
+            result['blockHash'] = blockHash;
+        }else{
+            result['blockHash'] = "";
+        }
         return result;
     }
 
@@ -631,38 +604,48 @@
     async function verifyGames() {
         disableSubmitBtn(true);
 
-        let playerList = [];
+        let startTime = document.getElementById("startTime").value;
+        let round = document.getElementById("round").value;
+        let userSign = document.getElementById("userSign").value;
+        let blockNum = document.getElementById("blockNum").value;
+        let blockHash = document.getElementById("blockHash").value;
+
+        console.log("startTime: ", startTime);
+        console.log("round: ", round);
+        console.log("userSign: ", userSign);
+        console.log("blockNum: ", blockNum);
+        console.log("blockHash: ", blockHash);
+
         try {
             // 解码Base58
-            for (let i = 0; i < userNum; i++) {
-                let userSign = document.getElementById(`userSign_${i}`).value;
-                let blockHash = document.getElementById(`blockHash_${i}`).value;
+            const decodedSign = bs58.decode(userSign);
+            const decodedHash = bs58.decode(blockHash);
+            // 合并字节数组
+            let combined = new Uint8Array(decodedSign.length + decodedHash.length);
+            combined.set(decodedSign, 0);
+            combined.set(decodedHash, decodedSign.length);
 
-                const decodedSign = bs58.decode(userSign);
-                const decodedHash = bs58.decode(blockHash);
-                // 合并字节数组
-                let combined = new Uint8Array(decodedSign.length + decodedHash.length);
-                combined.set(decodedSign, 0);
-                combined.set(decodedHash, decodedSign.length);
+            let list1 = [];
+            let list2 = [];
 
-                playerList.push(
-                    {
-                        id: i,
-                        combined: combined
-                    }
-                )
+            for (let i = 0; i < round; i++) {
+                combined = await hashData(combined);
+
+                const signature = bs58.encode(combined);
+                const bust = await normalizeHash(combined);
+                list1.push(signature);
+                list2.push(bust);
             }
 
-            await createResultView(playerList);
-        } catch (error) {
 
+            createResultView(list1, list2);
+        } catch (error) {
             console.error('验证错误:', error);
             alert('验证过程中发生错误: ' + error.message);
         } finally {
             // 恢复按钮状态
             disableSubmitBtn(false);
         }
-
     }
 
     /**
@@ -680,23 +663,38 @@
         }
     }
 
-    
-
     // 初始化页面
     function initPage() {
-        const params = getUrlParams();
-        userNum = params.playerCount;
-        document.getElementById('round').value = params.round;
-        initUserResByNum(params);
+        const result = getUrlParams();
+        document.getElementById("round").value = result.round;
+        document.getElementById("blockNum").value = result.blockNum;
+        document.getElementById("blockHash").value = result.blockHash;
+        document.getElementById("userSign").value = result.userSign;
         initEmptyResult();
-
-
         const verifyBtn = document.getElementById('verifyBtn');
         const clearBtn = document.getElementById('clearBtn');
         const countInput = document.getElementById('round');
 
         // 验证按钮点击事件
         verifyBtn.addEventListener('click', async () => {
+
+            // const params = getUrlParams();
+            // const count = parseInt(countInput.value) || 5;
+            //
+            // // 验证必填字段
+            // let allFieldsValid = true;
+            // for (let i = 1; i <= params.playerCount; i++) {
+            //     if (!params[`player${i}Sign`] || !params[`player${i}Hash`]) {
+            //         allFieldsValid = false;
+            //         break;
+            //     }
+            // }
+            //
+            // if (!allFieldsValid) {
+            //     alert('请确保URL中包含所有玩家的签名和哈希值参数');
+            //     return;
+            // }
+
             await verifyGames();
         });
 
@@ -711,129 +709,55 @@
                 verifyBtn.click();
             }
         });
+
         verifyGames();
     }
 
     function initEmptyResult() {
-        for (let i = 0; i < userNum; i++) {
-            document.getElementById(`resultRound_${i}`).innerHTML = `
+        document.getElementById(`resultRound`).innerHTML = `
                     <span>点击 "验证结果" 按钮，进行验证</span>
                     `;
-        }
-        document.getElementById("battleMode").textContent = "-多人对战-";
-        document.getElementById("createUser").textContent = "----";
-        document.getElementById("joinNum").textContent = userNum + "";
-
     }
 
-    function initUserResByNum(params) {
+    function createResultView(signatureList, bustList) {
         let str = ``;
-    // 提取result对象中的签名和哈希数据
-        const validatedPlayerCount = params.playerCount;
-        let userSign = [];
-        let blockHash = [];
-        let userName = [];
-        let block = [];
-        
-        // 循环提取每个玩家的数据
-        for (let i = 1; i <= validatedPlayerCount; i++) {
-            userSign.push(params[`player${i}Sign`] || "");
-            blockHash.push(params[`player${i}Hash`] || "");
-            block.push(params[`player${i}Block`] || "");
-            userName.push(params[`player${i}Name`] || "");
-        }
-
-        //todo:测试
-        //let userSign = [
-            //"4cA8PYxikCcjaAF4BvxMqq4TEdyrt6M2PXeVfLwAMd1iMf4gX85ibzdme8PC9Fi9rTiWGyohgCSDgUcaVgATRN8w",
-            //"2gpj3sQtE8rR5xxW78hrDxFiZchdTn3GAwk2pqrHQStkBaCP3BaKBESZ5qijcbDstmosHmxiTenJcPb7d73GD9CC",
-       // ]
-       // let blockHash = [
-            //"66666666666",
-            //"66666666666",
-       // ]
-        for (let i = 0; i < userNum; i++) {
+        for (let i = 0; i < signatureList.length; i++) {
             str += `
-               <div id="user_${i}" class="result-info-item">
-                    <div class="result-info-card">
-                        <div class="result-info-card-item">
-                            <span style="color: #00C1A4; font-size: 22px">${userName[i]}</span>
-                        </div>
-                        <div class="result-info-card-item">
-                            <div>
-                                <span class="title">签名</span>
-                                <a href="https://www.baidu.com" style="color: #28CFA5; float: right">在Solana查看 &gt; </a>
-                            </div>
-                            <div class="div-unEdit-txt">
-                                <input id="userSign_${i}" value='${userSign[i]}'>
-                            </div>
-                        </div>
-                        <div class="result-info-card-item">
-                            <span class="title">区块号</span>
-                            <div class="div-unEdit-txt">
-                                <input id="blockNum" value="${block[i]}">
-                            </div>
-                        </div>
-                        <div class="result-info-card-item">
-                            <span class="title">区块哈希</span>
-                            <div class="div-unEdit-txt">
-                                <input id="blockHash_${i}" value='${blockHash[i]}'>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="result-info-card">
-                        <div class="result-info-card-item">
-                            <div>
-                                <span style="font-size: 14px; color: #3B5580;">hash</span>
-                                <span style="font-size: 14px; color: #3B5580; float: right">区间值</span>
-                            </div>
-                        </div>
-                        <div class="result-info-card-item result-round" id="resultRound_${i}">
-                            <span>点击 "验证结果" 按钮，进行验证</span>
-                        </div>
-                    </div>
+                <div class="div-round">${i + 1}回合·使用区块hash进行sha256运算</div>
+                <div class="div-unEdit-txt">
+                    <span>${signatureList[i]}</span>
+                    <span style="float: right; color: #35DDDD">${bustList[i]}</span>
                 </div>
             `
         }
-        document.getElementById("userResult").innerHTML = str;
-    }
+        let resultRound = document.getElementById("resultRound");
+        resultRound.innerHTML = str;
 
-    async function createResultView(playerList) {
-        console.log("playerList ", playerList);
-
-        try {
-            const countInput = document.getElementById('round');
-
-            for (let i = 0; i < userNum; i++) {
-                let str = ``
-                for (let j = 0; j < countInput.value; j++) {
-                    let player = playerList[i];
-                    player.combined = await hashData(player.combined);
-                    let signature = bs58.encode(player.combined);
-                    let bust = await normalizeHash(player.combined);
-                    str += `
-                        <div class="div-round">
-                            <span style="display: inline-block;">${j + 1}回合·使用区块hash进行sha256运算</span>
-                        </div>
-                        <div class="div-unEdit-txt">
-                            <span>${signature}</span>
-                            <span style="color: #35DDDD">${bust}</span>
-                        </div>
-                    `;
-                }
-                document.getElementById(`resultRound_${i}`).innerHTML = str;
-            }
-        } catch (error) {
-            console.error('验证错误2:', error);
-            alert('验证过程中发生错误2: ' + error.message);
-        } finally {
-            // 恢复按钮状态
-            disableSubmitBtn(false);
-        }
+//         let resultRound = document.getElementById("resultRound");
+//         resultRound.innerHTML = `
+// <!--                    <div class="div-round">1回合·使用区块hash进行sha256运算</div>-->
+// <!--                    <div class="div-unEdit-txt">-->
+// <!--                        <span>13241wtrtsghgrs2341243</span>-->
+// <!--                        <span style="float: right; color: #35DDDD">0.88888</span>-->
+// <!--                    </div>-->
+// <!--                    <div class="div-round">2回合·使用区块hash进行sha256运算</div>-->
+// <!--                    <div class="div-unEdit-txt">-->
+// <!--                        <span>bbbbbbbbb</span>-->
+// <!--                        <span style="float: right; color: #35DDDD">0.11111111</span>-->
+// <!--                    </div>-->
+//         `
     }
 
     // 页面加载完成后初始化
     document.addEventListener('DOMContentLoaded', initPage);
+    function getQueryString(name) {
+        var reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)', 'i');
+        var r = window.location.search.substr(1).match(reg);
+        if (r != null) {
+            return unescape(r[2]);
+        }
+        return null;
+    }
 </script>
 
 
