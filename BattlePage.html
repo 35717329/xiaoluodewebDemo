@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Hash 验证器 · 多人对战</title>
     <style>
+        /* 样式保持不变 */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -159,6 +160,7 @@
             gap: 12px;
             flex-wrap: wrap;
             grid-column: span 2;
+            justify-self: end;
         }
 
         .btn {
@@ -247,6 +249,7 @@
             color: var(--muted);
         }
 
+        /* 签名右侧信息：区块号在上，链接在下 */
         .signature-info {
             display: flex;
             flex-direction: column;
@@ -432,7 +435,7 @@
             <h2>游戏信息</h2>
         </div>
 
-        <div class="game-info-grid" id="gameInfoGrid">
+        <div class="game-info-grid">
             <div class="info-item">
                 <label>游戏模式</label>
                 <div class="info-value" id="battleMode">-多人对战-</div>
@@ -452,7 +455,7 @@
                 </div>
             </div>
             <div class="button-group">
-                <button id="verifyBtn" class="btn btn-primary">
+                <button id="verifyBtn" class="btn btn-primary" disabled>
                     <span>验证结果</span>
                 </button>
                 <button id="clearBtn" class="btn btn-secondary">清除结果</button>
@@ -467,7 +470,7 @@
     </div>
 
     <div class="hint">
-        注意：本页面支持 2-3 人同时验证，根据 URL 参数自动调整。计算规则：第一回合使用原始区块哈希，后续回合叠加签名哈希。
+        规则：第一轮使用签名+初始区块哈希进行 SHA256，后续每轮对上一轮哈希进行 SHA256 迭代。结果显示为十六进制，归一化值 1-100000。
     </div>
 </div>
 
@@ -501,6 +504,7 @@
         return new Uint8Array(hashBuffer);
     }
 
+    // 归一化到 1-100000
     async function normalizeHash(decoded) {
         try {
             const hashArray = Array.from(decoded);
@@ -517,6 +521,31 @@
         }
     }
 
+    // 将字节数组转换为十六进制字符串
+    function bytesToHex(bytes) {
+        return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    function updateVerifyButton() {
+        const verifyBtn = document.getElementById('verifyBtn');
+        let allFilled = true;
+        for (let i = 0; i < userNum; i++) {
+            const signInput = document.getElementById(`userSign_${i}`);
+            const hashInput = document.getElementById(`blockHash_${i}`);
+            if (!signInput || !hashInput) {
+                allFilled = false;
+                break;
+            }
+            const signVal = signInput.value.trim();
+            const hashVal = hashInput.value.trim();
+            if (!signVal || !hashVal) {
+                allFilled = false;
+                break;
+            }
+        }
+        verifyBtn.disabled = !allFilled;
+    }
+
     function initPage() {
         const params = getUrlParams();
         userNum = params.playerCount;
@@ -528,6 +557,15 @@
 
         renderPlayerCards(params);
         initEmptyResults();
+
+        // 绑定输入事件以实时更新按钮状态
+        for (let i = 0; i < userNum; i++) {
+            const signInput = document.getElementById(`userSign_${i}`);
+            const hashInput = document.getElementById(`blockHash_${i}`);
+            if (signInput) signInput.addEventListener('input', updateVerifyButton);
+            if (hashInput) hashInput.addEventListener('input', updateVerifyButton);
+        }
+        updateVerifyButton();
 
         document.getElementById('verifyBtn').addEventListener('click', verifyGames);
         document.getElementById('clearBtn').addEventListener('click', () => {
@@ -552,6 +590,7 @@
                     <div class="player-header">
                         <div class="player-name">${playerName}</div>
 
+                        <!-- 签名行：区块号整合在右侧（区块号在上，链接在下） -->
                         <div class="player-detail">
                             <div class="detail-label">
                                 <span>签名</span>
@@ -565,6 +604,7 @@
                             </div>
                         </div>
 
+                        <!-- 区块哈希 -->
                         <div class="player-detail">
                             <div class="detail-label">区块哈希</div>
                             <div class="detail-value">
@@ -574,8 +614,8 @@
                     </div>
                     <div class="rounds-container">
                         <div class="rounds-header">
-                            <span>哈希值 (Base58)</span>
-                            <span>区间值</span>
+                            <span>哈希值 (Hex)</span>
+                            <span>区间值 (1-100000)</span>
                         </div>
                         <div id="resultRound_${i-1}" class="empty-rounds">
                             点击 "验证结果" 按钮开始验证
@@ -603,10 +643,12 @@
             btn.innerHTML = '<div class="loading"></div><span>验证中...</span>';
         } else {
             btn.innerHTML = '<span>验证结果</span>';
+            updateVerifyButton();
         }
     }
 
     async function verifyGames() {
+        // 再次检查输入
         let allFilled = true;
         for (let i = 0; i < userNum; i++) {
             const signInput = document.getElementById(`userSign_${i}`);
@@ -621,6 +663,7 @@
             setVerifying(false);
             return;
         }
+
         setVerifying(true);
         const roundCount = parseInt(document.getElementById('round').value) || 1;
         const playerPromises = [];
@@ -640,50 +683,45 @@
                 playerPromises.push({
                     id: i,
                     sign: decodedSign,
-                    blockHash: decodedHash,
-                    blockHashBase58: blockHashBase58
+                    blockHash: decodedHash
                 });
             }
 
             for (const player of playerPromises) {
                 const roundsHtml = [];
-
-                // 第一回合：直接使用区块哈希
-                const firstHashBytes = player.blockHash;
-                const firstNormalized = await normalizeHash(firstHashBytes);
+                const combined = new Uint8Array(player.sign.length + player.blockHash.length);
+                combined.set(player.sign, 0);
+                combined.set(player.blockHash, player.sign.length);
+                let hashBytes = await hashData(combined);
+                let hexStr = bytesToHex(hashBytes);
+                let normalized = await normalizeHash(hashBytes);
                 roundsHtml.push(`
                     <div class="round-item">
-                        <div class="round-title">第 1 回合 · 原始区块哈希</div>
+                        <div class="round-title">第 1 回合 · 签名+区块哈希</div>
                         <div class="round-hash">
-                            <span>${player.blockHashBase58}</span>
-                            <span>${firstNormalized}</span>
+                            <span>${hexStr}</span>
+                            <span>${normalized}</span>
                         </div>
                     </div>
                 `);
 
-                // 后续回合：签名 + 上一轮哈希结果
-                let previousHash = firstHashBytes; // 上一轮的哈希字节（第一轮是区块哈希）
+                let previousHash = hashBytes;
                 for (let r = 2; r <= roundCount; r++) {
-                    // 拼接签名 + 上一轮哈希
-                    const combined = new Uint8Array(player.sign.length + previousHash.length);
-                    combined.set(player.sign, 0);
-                    combined.set(previousHash, player.sign.length);
-
-                    const hashBytes = await hashData(combined);
-                    const hashBase58 = bs58.encode(hashBytes);
-                    const normalized = await normalizeHash(hashBytes);
+                    hashBytes = await hashData(previousHash);
+                    hexStr = bytesToHex(hashBytes);
+                    normalized = await normalizeHash(hashBytes);
 
                     roundsHtml.push(`
                         <div class="round-item">
                             <div class="round-title">第 ${r} 回合 · SHA256</div>
                             <div class="round-hash">
-                                <span>${hashBase58}</span>
+                                <span>${hexStr}</span>
                                 <span>${normalized}</span>
                             </div>
                         </div>
                     `);
 
-                    previousHash = hashBytes; // 更新为当前轮结果，用于下一轮
+                    previousHash = hashBytes;
                 }
 
                 const resultDiv = document.getElementById(`resultRound_${player.id}`);

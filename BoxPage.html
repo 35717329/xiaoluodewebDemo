@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Hash验证器 · 单人盲盒</title>
+    <title>经典盲盒 · 单人验证</title>
     <style>
         :root {
             --bg: #0b1220;
@@ -98,7 +98,7 @@
             color: #28CFA5;
         }
 
-        /* 游戏信息网格（与多人版一致） */
+        /* 游戏信息网格 */
         .game-info-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -153,8 +153,7 @@
         .button-group {
             display: flex;
             gap: 12px;
-            justify-self: start; /* 在网格中右对齐 */
-            grid-column: span 1; /* 根据内容自动宽度 */
+            justify-self: end;
         }
 
         .btn {
@@ -323,11 +322,10 @@
                 padding: 16px;
             }
             .game-info-grid {
-                grid-template-columns: 1fr; /* 小屏堆叠 */
+                grid-template-columns: 1fr;
             }
             .button-group {
                 justify-self: stretch;
-                grid-column: span 1;
             }
             .btn {
                 flex: 1;
@@ -374,11 +372,11 @@
             <div class="info-item">
                 <label>盲盒数量</label>
                 <div class="info-value">
-                    <input type="number" id="round" min="0" max="100" value="0"/>
+                    <input type="number" id="round" min="1" max="100" value="1">
                 </div>
             </div>
             <div class="button-group">
-                <button id="verifyBtn" class="btn btn-primary">
+                <button id="verifyBtn" class="btn btn-primary" disabled>
                     <span>验证结果</span>
                 </button>
                 <button id="clearBtn" class="btn btn-secondary">清除结果</button>
@@ -415,8 +413,8 @@
             <div class="result-info-card">
                 <div class="result-info-card-item">
                     <div>
-                        <span style="font-size: 14px; color: #3B5580;">哈希值 (Base58)</span>
-                        <span style="font-size: 14px; color: #3B5580; float: right">区间值 (1-10000)</span>
+                        <span style="font-size: 14px; color: #3B5580;">哈希值 (Hex)</span>
+                        <span style="font-size: 14px; color: #3B5580; float: right">区间值 (1-100000)</span>
                     </div>
                 </div>
                 <div class="result-info-card-item" id="resultRound">
@@ -427,7 +425,7 @@
     </div>
 
     <div class="hint">
-        规则：第一回合直接使用区块哈希，后续回合拼接签名进行 SHA256 迭代。归一化值为 1-10000 整数。
+        规则：第一轮使用签名+初始区块哈希进行 SHA256，后续每轮对上一轮哈希进行 SHA256 迭代。结果显示为十六进制，归一化值 1-100000。
     </div>
 </div>
 
@@ -440,7 +438,7 @@
         let userSign = getQueryString("userSign");
         let blockNum = getQueryString("blockNum");
         let blockHash = getQueryString("blockHash");
-        result['round'] = round != null ? round : "";
+        result['round'] = round != null ? round : "1";
         result['userSign'] = userSign != null ? userSign : "";
         result['blockNum'] = blockNum != null ? blockNum : "";
         result['blockHash'] = blockHash != null ? blockHash : "";
@@ -452,6 +450,7 @@
         return new Uint8Array(hashBuffer);
     }
 
+    // 归一化到 1-100000
     async function normalizeHash(decoded) {
         try {
             const hashArray = Array.from(decoded);
@@ -468,18 +467,30 @@
         }
     }
 
+    // 将字节数组转换为十六进制字符串
+    function bytesToHex(bytes) {
+        return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    function updateVerifyButton() {
+        const verifyBtn = document.getElementById('verifyBtn');
+        const userSign = document.getElementById('userSign').value.trim();
+        const blockHash = document.getElementById('blockHash').value.trim();
+        verifyBtn.disabled = !(userSign && blockHash);
+    }
+
     async function verifyGames() {
-        disableSubmitBtn(true);
-
-        let round = parseInt(document.getElementById("round").value) || 0;
-        let userSign = document.getElementById("userSign").value.trim();
-        let blockHash = document.getElementById("blockHash").value.trim();
-
+        const userSign = document.getElementById('userSign').value.trim();
+        const blockHash = document.getElementById('blockHash').value.trim();
         if (!userSign || !blockHash) {
             alert('请填写签名和区块哈希');
-            disableSubmitBtn(false);
             return;
         }
+
+        let round = parseInt(document.getElementById('round').value);
+        if (isNaN(round) || round < 1) round = 1;
+
+        disableSubmitBtn(true);
 
         try {
             const decodedSign = bs58.decode(userSign);
@@ -487,31 +498,30 @@
 
             const roundsHtml = [];
 
-            // 第一回合
-            const firstNormalized = await normalizeHash(decodedHash);
+            // 第一轮：签名 + 初始区块哈希
+            const combined = new Uint8Array(decodedSign.length + decodedHash.length);
+            combined.set(decodedSign, 0);
+            combined.set(decodedHash, decodedSign.length);
+            let hashBytes = await hashData(combined);
+            let hexStr = bytesToHex(hashBytes);
+            let normalized = await normalizeHash(hashBytes);
             roundsHtml.push(`
-                <div class="div-round">第 1 回合 · 原始区块哈希</div>
+                <div class="div-round">第 1 回合 · 签名+区块哈希</div>
                 <div class="round-hash-item">
-                    <span>${blockHash}</span>
-                    <span>${firstNormalized}</span>
+                    <span>${hexStr}</span>
+                    <span>${normalized}</span>
                 </div>
             `);
-
-            // 后续回合
-            let previousHash = decodedHash;
+            let previousHash = hashBytes;
             for (let i = 2; i <= round; i++) {
-                const combined = new Uint8Array(decodedSign.length + previousHash.length);
-                combined.set(decodedSign, 0);
-                combined.set(previousHash, decodedSign.length);
-
-                const hashBytes = await hashData(combined);
-                const hashBase58 = bs58.encode(hashBytes);
-                const normalized = await normalizeHash(hashBytes);
+                hashBytes = await hashData(previousHash);
+                hexStr = bytesToHex(hashBytes);
+                normalized = await normalizeHash(hashBytes);
 
                 roundsHtml.push(`
                     <div class="div-round">第 ${i} 回合 · SHA256</div>
                     <div class="round-hash-item">
-                        <span>${hashBase58}</span>
+                        <span>${hexStr}</span>
                         <span>${normalized}</span>
                     </div>
                 `);
@@ -535,6 +545,7 @@
             verifyBtn.innerHTML = '<div class="loading"></div><span>验证中...</span>';
         } else {
             verifyBtn.innerHTML = '<span>验证结果</span>';
+            updateVerifyButton();
         }
     }
 
@@ -554,6 +565,11 @@
         }
 
         initEmptyResult();
+
+        // 输入事件监听
+        document.getElementById('userSign').addEventListener('input', updateVerifyButton);
+        document.getElementById('blockHash').addEventListener('input', updateVerifyButton);
+        updateVerifyButton();
 
         document.getElementById('verifyBtn').addEventListener('click', verifyGames);
         document.getElementById('clearBtn').addEventListener('click', () => {
