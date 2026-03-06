@@ -453,8 +453,10 @@
                 hashValue = (hashValue << 8n) + BigInt(byte);
             }
             const maxValue = (1n << 256n) - 1n;
-            const scaled = ((hashValue * 99999n) / maxValue) + 1n;
-            return Number(scaled);
+            const scaled = Number(hashValue) / Number(maxValue);
+            let a = scaled * 100000;
+            a = Math.floor(scaled * 100000);
+            return a;
         } catch (e) {
             console.error('归一化错误:', e);
             return 1;
