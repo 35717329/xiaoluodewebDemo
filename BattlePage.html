@@ -43,7 +43,6 @@
             padding: 24px;
         }
 
-        /* 头部 */
         .header {
             text-align: center;
             margin-bottom: 32px;
@@ -63,7 +62,6 @@
             margin: 0 auto;
         }
 
-        /* 卡片通用 */
         .card {
             background: var(--card-bg);
             border-radius: 12px;
@@ -84,7 +82,6 @@
             font-weight: 600;
         }
 
-        /* 备注列表 */
         .remark-list {
             display: flex;
             flex-direction: column;
@@ -106,7 +103,6 @@
             text-decoration: underline;
         }
 
-        /* 游戏信息区域 - 网格布局 */
         .game-info-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -158,7 +154,6 @@
             color: var(--text-secondary);
         }
 
-        /* 按钮组 */
         .button-group {
             display: flex;
             gap: 12px;
@@ -206,7 +201,6 @@
             background: rgba(255, 255, 255, 0.05);
         }
 
-        /* 玩家结果卡片容器 */
         .players-results {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
@@ -253,7 +247,6 @@
             color: var(--muted);
         }
 
-        /* 签名右侧：区块号在上，链接在下，垂直排列，右对齐 */
         .signature-info {
             display: flex;
             flex-direction: column;
@@ -296,7 +289,6 @@
             font-size: inherit;
         }
 
-        /* 回合结果区域 */
         .rounds-container {
             background: rgba(0, 0, 0, 0.2);
             padding: 20px;
@@ -358,7 +350,6 @@
             font-size: 14px;
         }
 
-        /* 加载动画 */
         .loading {
             display: inline-block;
             width: 20px;
@@ -375,7 +366,6 @@
             }
         }
 
-        /* 提示 */
         .hint {
             margin-top: 32px;
             color: var(--muted);
@@ -383,7 +373,6 @@
             text-align: center;
         }
 
-        /* 小屏适配：哈希与区间值上下排列 */
         @media (max-width: 640px) {
             .container {
                 padding: 16px;
@@ -406,7 +395,6 @@
                 grid-template-columns: 1fr;
             }
 
-            /* 回合结果改为上下排列：哈希在上，区间值在下，居中对齐 */
             .round-hash {
                 flex-direction: column;
                 align-items: center;
@@ -444,7 +432,6 @@
             <h2>游戏信息</h2>
         </div>
 
-        <!-- 游戏信息网格 -->
         <div class="game-info-grid" id="gameInfoGrid">
             <div class="info-item">
                 <label>游戏模式</label>
@@ -476,12 +463,11 @@
             <h2>开奖哈希</h2>
         </div>
 
-        <!-- 动态玩家卡片容器 -->
         <div id="playersContainer" class="players-results"></div>
     </div>
 
     <div class="hint">
-        注意：本页面支持 2-3 人同时验证，根据 URL 参数自动调整。计算规则与原站点一致。
+        注意：本页面支持 2-3 人同时验证，根据 URL 参数自动调整。计算规则：第一回合使用原始区块哈希，后续回合叠加签名哈希。
     </div>
 </div>
 
@@ -565,6 +551,7 @@
                 <div class="player-card" id="playerCard_${i-1}">
                     <div class="player-header">
                         <div class="player-name">${playerName}</div>
+
                         <div class="player-detail">
                             <div class="detail-label">
                                 <span>签名</span>
@@ -578,7 +565,6 @@
                             </div>
                         </div>
 
-                        <!-- 区块哈希 -->
                         <div class="player-detail">
                             <div class="detail-label">区块哈希</div>
                             <div class="detail-value">
@@ -588,7 +574,7 @@
                     </div>
                     <div class="rounds-container">
                         <div class="rounds-header">
-                            <span>哈希值 (SHA256) · Base58</span>
+                            <span>哈希值 (Base58)</span>
                             <span>区间值</span>
                         </div>
                         <div id="resultRound_${i-1}" class="empty-rounds">
@@ -621,6 +607,20 @@
     }
 
     async function verifyGames() {
+        let allFilled = true;
+        for (let i = 0; i < userNum; i++) {
+            const signInput = document.getElementById(`userSign_${i}`);
+            const hashInput = document.getElementById(`blockHash_${i}`);
+            if (!signInput || !hashInput || !signInput.value.trim() || !hashInput.value.trim()) {
+                allFilled = false;
+                break;
+            }
+        }
+        if (!allFilled) {
+            alert('请填写所有玩家的签名和区块哈希');
+            setVerifying(false);
+            return;
+        }
         setVerifying(true);
         const roundCount = parseInt(document.getElementById('round').value) || 1;
         const playerPromises = [];
@@ -631,31 +631,51 @@
                 const hashInput = document.getElementById(`blockHash_${i}`);
                 if (!signInput || !hashInput) continue;
 
-                const sign = signInput.value.trim();
-                const blockHash = hashInput.value.trim();
+                const signBase58 = signInput.value.trim();
+                const blockHashBase58 = hashInput.value.trim();
 
-                const decodedSign = bs58.decode(sign);
-                const decodedHash = bs58.decode(blockHash);
+                const decodedSign = bs58.decode(signBase58);
+                const decodedHash = bs58.decode(blockHashBase58);
 
-                const combined = new Uint8Array(decodedSign.length + decodedHash.length);
-                combined.set(decodedSign, 0);
-                combined.set(decodedHash, decodedSign.length);
-
-                playerPromises.push({ id: i, combined });
+                playerPromises.push({
+                    id: i,
+                    sign: decodedSign,
+                    blockHash: decodedHash,
+                    blockHashBase58: blockHashBase58
+                });
             }
 
             for (const player of playerPromises) {
-                let currentData = player.combined;
                 const roundsHtml = [];
 
-                for (let r = 0; r < roundCount; r++) {
-                    const hashBytes = await hashData(currentData);
+                // 第一回合：直接使用区块哈希
+                const firstHashBytes = player.blockHash;
+                const firstNormalized = await normalizeHash(firstHashBytes);
+                roundsHtml.push(`
+                    <div class="round-item">
+                        <div class="round-title">第 1 回合 · 原始区块哈希</div>
+                        <div class="round-hash">
+                            <span>${player.blockHashBase58}</span>
+                            <span>${firstNormalized}</span>
+                        </div>
+                    </div>
+                `);
+
+                // 后续回合：签名 + 上一轮哈希结果
+                let previousHash = firstHashBytes; // 上一轮的哈希字节（第一轮是区块哈希）
+                for (let r = 2; r <= roundCount; r++) {
+                    // 拼接签名 + 上一轮哈希
+                    const combined = new Uint8Array(player.sign.length + previousHash.length);
+                    combined.set(player.sign, 0);
+                    combined.set(previousHash, player.sign.length);
+
+                    const hashBytes = await hashData(combined);
                     const hashBase58 = bs58.encode(hashBytes);
                     const normalized = await normalizeHash(hashBytes);
 
                     roundsHtml.push(`
                         <div class="round-item">
-                            <div class="round-title">第 ${r+1} 回合 · SHA256</div>
+                            <div class="round-title">第 ${r} 回合 · SHA256</div>
                             <div class="round-hash">
                                 <span>${hashBase58}</span>
                                 <span>${normalized}</span>
@@ -663,7 +683,7 @@
                         </div>
                     `);
 
-                    currentData = hashBytes;
+                    previousHash = hashBytes; // 更新为当前轮结果，用于下一轮
                 }
 
                 const resultDiv = document.getElementById(`resultRound_${player.id}`);
