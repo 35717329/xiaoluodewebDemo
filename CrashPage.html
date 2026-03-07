@@ -417,8 +417,10 @@
         const result = {};
         let round = getQueryString("round");
         let blockHash = getQueryString("blockHash");
+        let issue = getQueryString("issue");
         result['round'] = round != null ? round : "10";
         result['blockHash'] = blockHash != null ? blockHash : "";
+        result['issue'] = blockHash != null ? issue : 0;
         return result;
     }
 
@@ -478,7 +480,6 @@
             // 第一轮：显示输入的十六进制
             const firstNormalized = await normalizeHash(currentHash);
             roundsHtml.push(`
-                <div class="div-round">第 1 回合 · 原始爆点哈希</div>
                 <div class="round-hash-item">
                     <span>${blockHashHex}</span>
                     <span>${firstNormalized}</span>
@@ -492,7 +493,6 @@
                 const normalized = await normalizeHash(hashBytes);
 
                 roundsHtml.push(`
-                    <div class="div-round">第 ${i} 回合 · SHA256</div>
                     <div class="round-hash-item">
                         <span>${hexStr}</span>
                         <span>${normalized}</span>
