@@ -491,7 +491,6 @@
             // 第一轮结果
             let multiplier = await normalizeHash(currentHash);
             roundsHtml.push(`
-                <div class="div-round">第 1 回合 · 原始哈希</div>
                 <div class="round-hash-item">
                     <span>${blockHashHex}</span>
                     <span>${multiplier}x</span>
@@ -507,7 +506,6 @@
                 multiplier = await normalizeHash(hashBytes);
 
                 roundsHtml.push(`
-                    <div class="div-round">第 ${i} 回合 · SHA256(上一轮Hex)</div>
                     <div class="round-hash-item">
                         <span>${hexStr}</span>
                         <span>${multiplier}x</span>
