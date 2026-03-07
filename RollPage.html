@@ -77,6 +77,13 @@
             font-size: 18px;
             font-weight: 600;
         }
+        .remark-highlight {
+            color: #ffd700; /* 金色 */
+            font-weight: 600;
+            background: rgba(255, 215, 0, 0.1);
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
 
         .remark-list {
             display: grid;
@@ -98,7 +105,6 @@
             color: #28CFA5;
         }
 
-        /* 游戏信息网格 */
         .game-info-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -109,6 +115,8 @@
             border-radius: 12px;
             margin-bottom: 24px;
         }
+
+        
 
         .info-item {
             display: flex;
@@ -153,7 +161,7 @@
         .button-group {
             display: flex;
             gap: 12px;
-            justify-self: end;
+            justify-self: start;
         }
 
         .btn {
@@ -248,7 +256,7 @@
             color: var(--link);
             text-decoration: none;
             white-space: nowrap;
-            font-size: 13px;
+            font-size: 18px;
         }
 
         .div-round {
@@ -355,7 +363,9 @@
         <div class="remark-list">
             <span class="remark-list-item">· 每位玩家都会获取专属于您的 <a href="https://solscan.io" target="_blank">Solana 钱包地址</a>；</span>
             <span class="remark-list-item">· 游戏时产生的交易签名和区块哈希随机、唯一且不可更改；</span>
-            <span class="remark-list-item">· 开奖结果基于区块哈希使用 SHA256 推算，不可逆推，唯一且不可更改；</span>
+            <span class="remark-list-item remark-highlight">· 将签名（Base58 解码）与区块哈希（Base58 解码）的字节数组拼接，进行 SHA256 哈希，得到 32 字节结果；</span>
+            <span class="remark-list-item remark-highlight">· 结果以十六进制小写字符串显示，并同时显示归一化值(范围 1–100000，向下取整)；</span>
+            <span class="remark-list-item remark-highlight">· 归一化计算：将32字节哈希值转换为浮点数，除以最大值 (2^256-1) 得到 [0,1] 区间的小数，再乘以 100000 后向下取整，得到 1–100000 的整数。</span>
             <span class="remark-list-item">· 任何支持 SHA256 验算的网站都可验证哈希真伪。</span>
         </div>
 
@@ -365,12 +375,12 @@
 
         <!-- 游戏信息网格 -->
         <div class="game-info-grid">
-            <div class="info-item">
+            <!-- <div class="info-item">
                 <label>游戏模式</label>
                 <div class="info-value">
                     <span>ROLL房</span>
                 </div>
-            </div>
+            </div> -->
             <div class="button-group">
                 <button id="verifyBtn" class="btn btn-primary" disabled>
                     <span>验证结果</span>
@@ -551,6 +561,9 @@
         document.getElementById('clearBtn').addEventListener('click', () => {
             initEmptyResult();
         });
+        if (document.getElementById('userSign').value.trim() && document.getElementById('blockHash').value.trim()) {
+            verifyGames();
+        }
     }
 
     function initEmptyResult() {

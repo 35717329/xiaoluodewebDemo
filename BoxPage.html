@@ -78,6 +78,14 @@
             font-weight: 600;
         }
 
+        .remark-highlight {
+            color: #ffd700; /* 金色 */
+            font-weight: 600;
+            background: rgba(255, 215, 0, 0.1);
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+
         .remark-list {
             display: grid;
             grid-template-columns: repeat(1, 1fr);
@@ -101,7 +109,7 @@
         /* 游戏信息网格 */
         .game-info-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 16px;
             align-items: end;
             background-color: #0D1726;
@@ -121,6 +129,7 @@
             color: var(--muted);
             font-weight: 500;
         }
+
 
         .info-value {
             background: rgba(255, 255, 255, 0.03);
@@ -153,7 +162,7 @@
         .button-group {
             display: flex;
             gap: 12px;
-            justify-self: end;
+            justify-self: start;
         }
 
         .btn {
@@ -248,7 +257,7 @@
             color: var(--link);
             text-decoration: none;
             white-space: nowrap;
-            font-size: 13px;
+            font-size: 18px;
         }
 
         .div-round {
@@ -323,6 +332,7 @@
             }
             .game-info-grid {
                 grid-template-columns: 1fr;
+                justify-self: stretch;
             }
             .button-group {
                 justify-self: stretch;
@@ -355,21 +365,24 @@
         <div class="remark-list">
             <span class="remark-list-item">· 每位玩家都会获取专属于您的 <a href="https://solscan.io" target="_blank">Solana 钱包地址</a>；</span>
             <span class="remark-list-item">· 游戏时产生的交易签名和区块哈希随机、唯一且不可更改；</span>
-            <span class="remark-list-item">· 开奖结果基于区块哈希使用 SHA256 推算，不可逆推，唯一且不可更改；</span>
+            <span class="remark-list-item remark-highlight">· 第一轮：将签名（Base58 解码）与区块哈希（Base58 解码）的字节数组拼接，进行 SHA256 哈希，得到 32 字节结果；</span>
+            <span class="remark-list-item remark-highlight">· 后续轮次：将上一轮结果的十六进制字符串（即上一轮显示的 Hex）视为普通文本，使用 TextEncoder 编码为 UTF-8 字节，再对这些字节进行 SHA256 哈希，得到新的 32 字节结果；</span>
+            <span class="remark-list-item remark-highlight">· 每一轮结果以十六进制小写字符串显示，并同时显示归一化值(范围 1–100000，向下取整)；</span>
+            <span class="remark-list-item remark-highlight">· 归一化计算：将32字节哈希值转换为浮点数，除以最大值 (2^256-1) 得到 [0,1] 区间的小数，再乘以 100000 后向下取整，得到 1–100000 的整数。</span>
             <span class="remark-list-item">· 任何支持 SHA256 验算的网站都可验证哈希真伪。</span>
         </div>
-
+        
         <div class="card-header">
             <h2>游戏信息</h2>
         </div>
         <div class="game-info-grid">
-            <div class="info-item">
+            <!-- <div class="info-item">
                 <label>游戏模式</label>
                 <div class="info-value">
                     <span>经典盲盒</span>
                 </div>
-            </div>
-            <div class="info-item">
+            </div> -->
+            <div class="info-item ">
                 <label>盲盒数量</label>
                 <div class="info-value">
                     <input type="number" id="round" min="1" max="100" value="1">
@@ -569,7 +582,6 @@
         }
 
         initEmptyResult();
-
         // 输入事件监听
         document.getElementById('userSign').addEventListener('input', updateVerifyButton);
         document.getElementById('blockHash').addEventListener('input', updateVerifyButton);
@@ -582,6 +594,9 @@
         document.getElementById('round').addEventListener('keydown', (e) => {
             if (e.key === 'Enter') verifyGames();
         });
+        if (document.getElementById('userSign').value.trim() && document.getElementById('blockHash').value.trim()) {
+            verifyGames();
+        }
     }
 
     function initEmptyResult() {

@@ -85,6 +85,14 @@
             margin-bottom: 24px;
         }
 
+        .remark-highlight {
+            color: #ffd700; /* 金色 */
+            font-weight: 600;
+            background: rgba(255, 215, 0, 0.1);
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+
         .remark-list-item {
             font-family: "Microsoft YaHei";
             font-size: 14px;
@@ -153,7 +161,7 @@
         .button-group {
             display: flex;
             gap: 12px;
-            justify-self: end;
+            justify-self: start;
         }
 
         .btn {
@@ -324,9 +332,9 @@
             <h2>验证说明</h2>
         </div>
         <div class="remark-list">
-            <span class="remark-list-item">· 每位玩家都会获取专属于您的 <a href="https://solscan.io" target="_blank">Solana 钱包地址</a>；</span>
-            <span class="remark-list-item">· 游戏时产生的交易签名和区块哈希随机、唯一且不可更改；</span>
-            <span class="remark-list-item">· 开奖结果基于区块哈希使用 SHA256 推算，不可逆推，唯一且不可更改；</span>
+            <span class="remark-list-item remark-highlight">· 我们预先通过加密算法生成一千万个随机数字，并按照倒序依次对应每一轮游戏——也就是说，第一轮的结果是这串数字的最后一个，第二轮是倒数第二个，以此类推；</span>
+            <span class="remark-list-item remark-highlight">· 这意味着所有轮次的爆点数值在游戏开始前就已经确定，完全独立于玩家的消费行为，杜绝了任何形式的实时操纵；</span>
+            <span class="remark-list-item remark-highlight">· 每一轮的爆点结果均可通过公开的哈希算法进行追溯与验证；</span>
             <span class="remark-list-item">· 任何支持 SHA256 验算的网站都可验证哈希真伪。</span>
         </div>
 
@@ -336,12 +344,12 @@
 
         <!-- 游戏信息网格 -->
         <div class="game-info-grid">
-            <div class="info-item">
+            <!-- <div class="info-item">
                 <label>游戏模式</label>
                 <div class="info-value">
                     <span>爆点</span>
                 </div>
-            </div>
+            </div> -->
             <div class="info-item">
                 <label>游戏轮数</label>
                 <div class="info-value">
@@ -530,6 +538,9 @@
         document.getElementById('round').addEventListener('keydown', (e) => {
             if (e.key === 'Enter') verifyGames();
         });
+        if (document.getElementById('blockHash').value.trim()) {
+            verifyGames();
+        }
     }
 
     function initEmptyResult() {
