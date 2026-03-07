@@ -365,8 +365,8 @@
         <div class="remark-list">
             <span class="remark-list-item">· 每位玩家都会获取专属于您的 <a href="https://solscan.io" target="_blank">Solana 钱包地址</a>；</span>
             <span class="remark-list-item">· 游戏时产生的交易签名和区块哈希随机、唯一且不可更改；</span>
-            <span class="remark-list-item remark-highlight">· 第一轮：将签名与区块哈希的字节数组拼接，进行 SHA256 哈希，得到 64 位结果；</span>
-            <span class="remark-list-item remark-highlight">· 后续轮次：将上一轮结果的十六进制字符串（即上一轮显示的 Hex）视为普通文本，使用 TextEncoder 编码为 UTF-8 字节，再对这些字节进行 SHA256 哈希，得到新的 64 位结果；</span>
+            <span class="remark-list-item remark-highlight">· 第一轮：将签名与区块哈希的字节数组拼接，进行 SHA256 加密，得到 64 位结果；</span>
+            <span class="remark-list-item remark-highlight">· 后续轮次：将上一轮结果的十六进制字符串（即上一轮显示的 Hex）视为普通文本，使用 TextEncoder 编码为 UTF-8 字节，再对这些字节进行 SHA256 加密，得到新的 64 位结果；</span>
             <span class="remark-list-item remark-highlight">· 每一轮结果以十六进制小写字符串显示，并同时显示归一化值(范围 1–100000，向下取整)；</span>
             <span class="remark-list-item remark-highlight">· 归一化计算：将64位哈希值转换为浮点数，除以最大值 (2^256-1) 得到 [0,1] 区间的小数，再乘以 99999 后向下取整后 +1，得到 1–100000 的整数。</span>
             <span class="remark-list-item">· 任何支持 SHA256 验算的网站都可验证哈希真伪。</span>
@@ -427,7 +427,6 @@
                 <div class="result-info-card-item">
                     <div>
                         <span style="font-size: 14px; color: #3B5580;">哈希值 (Hex)</span>
-                        <span style="font-size: 14px; color: #3B5580; float: right">区间值 (1-100000)</span>
                     </div>
                 </div>
                 <div class="result-info-card-item" id="resultRound">
@@ -437,9 +436,9 @@
         </div>
     </div>
 
-    <div class="hint">
+    <!-- <div class="hint">
         规则：第一轮使用签名+初始区块哈希进行 SHA256，后续每轮对上一轮哈希进行 SHA256 迭代。结果显示为十六进制，归一化值 1-100000。
-    </div>
+    </div> -->
 </div>
 
 <script type="module">

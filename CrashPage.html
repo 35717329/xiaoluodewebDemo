@@ -390,9 +390,9 @@
         </div>
     </div>
 
-    <div class="hint">
+    <!-- <div class="hint">
         规则：第一轮显示输入的十六进制哈希，后续每轮对上一轮哈希进行 SHA256 迭代，结果显示为十六进制和归一化值（1-100000）。
-    </div>
+    </div> -->
 </div>
 
 <script type="module">
@@ -429,21 +429,32 @@
         return new Uint8Array(hashBuffer);
     }
 
+    // 归一化函数：返回向下取整的两位小数字符串（如 "1.70"）
     async function normalizeHash(decoded) {
         try {
-            const hashArray = Array.from(decoded);
-            let hashValue = 0n;
-            for (const byte of hashArray) {
-                hashValue = (hashValue << 8n) + BigInt(byte);
+            const hex = bytesToHex(decoded);               // 64位十六进制
+            const hex13 = hex.slice(0, 13);                 // 取前13位
+            const value = BigInt('0x' + hex13);              // 转为整数
+            const twoTo52 = 1n << 52n;                        // 2^52
+
+            // 若 X < 0.01，直接返回 1.00（对应 multiplier < 100）
+            if (value * 100n < twoTo52) {
+                return "1.00";
             }
-            const maxValue = (1n << 256n) - 1n;
-            const scaled = Number(hashValue) / Number(maxValue);
-            let a = scaled * 100000;
-            a = Math.floor(scaled * 100000);
-            return a;
+
+            const denominator = twoTo52 - value;              // 2^52 - value
+            const numerator = 99n * twoTo52;                   // 99 * 2^52
+
+            // 向下取整（BigInt 除法自动截断）
+            const floorMultiplier = numerator / denominator;   // 整数倍率（已放大1倍）
+
+            // 拆分为整数部分和两位小数
+            const intPart = floorMultiplier / 100n;
+            const fracPart = floorMultiplier % 100n;
+            return `${intPart}.${fracPart.toString().padStart(2, '0')}`;
         } catch (e) {
             console.error('归一化错误:', e);
-            return 1;
+            return "1.00";
         }
     }
     function updateVerifyButton() {
@@ -460,12 +471,12 @@
         }
 
         let round = parseInt(document.getElementById('round').value);
-        if (isNaN(round) || round < 1) round = 1;
+        if (isNaN(round) || round < 1) round = 10;
 
         disableSubmitBtn(true);
 
         try {
-            // 将十六进制字符串转为字节数组
+            // 第一轮：将输入十六进制转字节数组
             let currentHash;
             try {
                 currentHash = hexToBytes(blockHashHex);
@@ -476,30 +487,34 @@
             }
 
             const roundsHtml = [];
+            const encoder = new TextEncoder();
 
-            // 第一轮：显示输入的十六进制
-            const firstNormalized = await normalizeHash(currentHash);
+            // 第一轮结果
+            let multiplier = await normalizeHash(currentHash);
             roundsHtml.push(`
+                <div class="div-round">第 1 回合 · 原始哈希</div>
                 <div class="round-hash-item">
                     <span>${blockHashHex}</span>
-                    <span>${firstNormalized}</span>
+                    <span>${multiplier}x</span>
                 </div>
             `);
 
-            // 后续回合：对上一轮哈希字节进行 SHA256
+            // 后续轮次：对上一轮哈希的十六进制字符串（UTF-8）进行哈希
+            let previousHex = blockHashHex;
             for (let i = 2; i <= round; i++) {
-                const hashBytes = await hashData(currentHash);
+                const inputBytes = encoder.encode(previousHex);
+                const hashBytes = await hashData(inputBytes);
                 const hexStr = bytesToHex(hashBytes);
-                const normalized = await normalizeHash(hashBytes);
+                multiplier = await normalizeHash(hashBytes);
 
                 roundsHtml.push(`
+                    <div class="div-round">第 ${i} 回合 · SHA256(上一轮Hex)</div>
                     <div class="round-hash-item">
                         <span>${hexStr}</span>
-                        <span>${normalized}</span>
+                        <span>${multiplier}x</span>
                     </div>
                 `);
-
-                currentHash = hashBytes;
+                previousHex = hexStr;
             }
 
             document.getElementById("resultRound").innerHTML = roundsHtml.join('');
