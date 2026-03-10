@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>ROLL房 · 哈希验证</title>
+    <title>Hash验证器</title>
     <style>
         :root {
             --bg: #0b1220;
@@ -17,6 +17,8 @@
             --error: #ef4444;
             --text-soft: #6b7b98;
             --link: #28cfa5;
+            --border-light: rgba(255, 255, 255, 0.05);
+            --text-secondary: #a3b1cc;
         }
 
         * {
@@ -140,10 +142,10 @@
             transition: all 0.2s;
         }
 
-        .info-value:hover {
+        /* .info-value:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-        }
+        } */
 
         .info-value input {
             width: 100%;
@@ -184,10 +186,10 @@
             color: #021217;
         }
 
-        .btn-primary:hover:not(:disabled) {
+        /* .btn-primary:hover:not(:disabled) {
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(0, 209, 178, 0.3);
-        }
+        } */
 
         .btn-primary:disabled {
             opacity: 0.6;
@@ -200,9 +202,9 @@
             color: var(--muted);
         }
 
-        .btn-secondary:hover {
+        /* .btn-secondary:hover {
             background: rgba(255, 255, 255, 0.05);
-        }
+        } */
 
         .result-info {
             display: grid;
@@ -222,11 +224,19 @@
             margin-bottom: 16px;
         }
 
+        .result-info-card-item .block-number {
+            color: var(--text-soft);
+            font-family: monospace;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
         .result-info-card-item .title {
             font-size: 16px;
             line-height: 32px;
             display: inline-block;
             margin-bottom: 4px;
+            color: var(--muted);
         }
 
         .detail-label {
@@ -234,7 +244,7 @@
             justify-content: space-between;
             align-items: flex-start;
             margin-bottom: 6px;
-            font-size: 14px;
+            font-size: 16px;
             color: var(--muted);
         }
 
@@ -348,20 +358,96 @@
                 width: 100%;
             }
         }
+
+        /* 公式按钮和弹窗样式 */
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative; /* 为气泡定位 */
+        }
+
+        .btn-formula {
+            background: transparent;
+            border: 1px solid var(--border-light);
+            color: var(--muted);
+            padding: 6px 16px;
+            font-size: 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-formula:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .formula-popup {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            width: 400px;
+            background: var(--card);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: none;
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .formula-popup.show {
+            display: block;
+        }
+
+        .formula-popup p {
+            margin-bottom: 8px;
+        }
+
+        .formula-popup code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px 4px;
+            border-radius: 4px;
+            color: var(--accent);
+        }
+
+        @media (max-width: 640px) {
+            .formula-popup {
+                width: 280px;
+                right: 0;
+            }
+        }
     </style>
 </head>
 <body>
 <div class="container">
     <div class="header">
-        <h1>《ROLL房》· 哈希验证</h1>
+        <h1>Hash验证器</h1>
     </div>
 
     <div class="card">
         <div class="card-header">
             <h2>验证说明</h2>
+            <button class="btn btn-formula" id="formulaBtn">公式</button>
+            <div class="formula-popup" id="formulaPopup">
+                <p><strong>📐 计算流程</strong></p>
+                <p><code>userSignBytes = bs58.decode(userSign)</code></p>
+                <p><code>blockHashBytes = bs58.decode(blockHash)</code></p>
+                <p><code>combined = userSignBytes.concat(blockHashBytes)</code></p>
+                <p><code>hash₁ = SHA256(combined)</code></p>
+                <p><code>hexStr₁ = bytesToHex(hash₁)</code></p>
+                <p><code>inputBytes = TextEncoder.encode(previousHex)</code></p>
+                <p><code>hashₙ = SHA256(inputBytes)</code></p>
+                <p><code>hexStrₙ = bytesToHex(hashₙ)</code></p>
+                <p><code>norm = floor( (hash / (2^256 - 1)) × 99999 ) + 1</code></p>
+            </div>
         </div>
         <div class="remark-list">
-            <span class="remark-list-item">· 每位玩家都会获取专属于您的 <a href="https://solscan.io" target="_blank">Solana 钱包地址</a>；</span>
+            <span class="remark-list-item">· 每位玩家都会获取专属于您的Solana 钱包地址；</span>
             <span class="remark-list-item">· 游戏时产生的交易签名和区块哈希随机、唯一且不可更改；</span>
             <span class="remark-list-item remark-highlight">· 将签名与区块哈希的字节数组拼接，进行 SHA256 加密，得到 64 位结果；</span>
             <span class="remark-list-item remark-highlight">· 结果以十六进制小写字符串显示，并同时显示归一化值(范围 1–100000，向下取整)；</span>
@@ -394,14 +480,13 @@
         </div>
         <div class="result-info">
             <div class="result-info-card">
-                <div class="result-info-card-item">
+                <!-- <div class="result-info-card-item">
                     <span style="color: #00C1A4; font-size: 22px">用户名称</span>
-                </div>
+                </div> -->
                 <div class="result-info-card-item">
                     <div class="detail-label">
                         <span>签名</span>
                         <div class="signature-info">
-                            <span class="block-number" id="blockNumDisplay">区块号: --</span>
                             <a href="#" id="solscanLink" target="_blank">在 Solana 查看 →</a>
                         </div>
                     </div>
@@ -410,7 +495,8 @@
                     </div>
                 </div>
                 <div class="result-info-card-item">
-                    <span class="title">区块哈希</span>
+                    <span class="title">区块哈希&nbsp&nbsp&nbsp</span>
+                    <span class="block-number" id="blockNumDisplay">区块号: --</span>
                     <div class="info-value">
                         <input id="blockHash" value="66666666666">
                     </div>
@@ -509,7 +595,7 @@
             const normalized = await normalizeHash(hashBytes);
 
             const resultHtml = `
-                <div class="div-round">第 1 回合 · 签名+区块哈希</div>
+                <div class="div-round">第 1 回合 · SHA256</div>
                 <div class="round-hash-item">
                     <span>${hexStr}</span>
                     <span>${normalized}</span>
@@ -563,6 +649,20 @@
         });
         if (document.getElementById('userSign').value.trim() && document.getElementById('blockHash').value.trim()) {
             verifyGames();
+        }
+        // 公式按钮交互
+        const formulaBtn = document.getElementById('formulaBtn');
+        const formulaPopup = document.getElementById('formulaPopup');
+        if (formulaBtn && formulaPopup) {
+            formulaBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                formulaPopup.classList.toggle('show');
+            });
+            document.addEventListener('click', (e) => {
+                if (!formulaBtn.contains(e.target) && !formulaPopup.contains(e.target)) {
+                    formulaPopup.classList.remove('show');
+                }
+            });
         }
     }
 

@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Hash 验证器 · 多人对战</title>
+    <title>Hash验证器</title>
     <style>
         /* 样式保持不变 */
         * {
@@ -28,6 +28,8 @@
             --error: #ef4444;
             --link: #28cfa5;
             --hash-value: #35dddd;
+            --border-light: rgba(255, 255, 255, 0.05);
+            --card: #0f1724;
         }
 
         body {
@@ -112,9 +114,9 @@
             text-decoration: none;
         }
 
-        .remark-item a:hover {
+        /* .remark-item a:hover {
             text-decoration: underline;
-        }
+        } */
 
         .game-info-grid {
             display: grid;
@@ -149,10 +151,10 @@
             transition: all 0.2s;
         }
 
-        .info-value:hover {
+        /* .info-value:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-        }
+        } */
 
         .info-value input {
             width: 100%;
@@ -195,10 +197,10 @@
             color: #021217;
         }
 
-        .btn-primary:hover:not(:disabled) {
+        /* .btn-primary:hover:not(:disabled) {
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(0, 209, 178, 0.3);
-        }
+        } */
 
         .btn-primary:disabled {
             opacity: 0.6;
@@ -211,9 +213,9 @@
             color: var(--muted);
         }
 
-        .btn-secondary:hover {
+        /* .btn-secondary:hover {
             background: rgba(255, 255, 255, 0.05);
-        }
+        } */
 
         .players-results {
             display: grid;
@@ -224,7 +226,7 @@
 
         .player-card {
             background: rgba(255, 255, 255, 0.03);
-            border-radius: 12px;
+            border-radius: 8px;
             border: 1px solid var(--border-light);
             overflow: hidden;
             transition: all 0.3s ease;
@@ -232,10 +234,10 @@
             flex-direction: column;
         }
 
-        .player-card:hover {
+        /* .player-card:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
-        }
+        } */
 
         .player-header {
             padding: 20px 20px 0 20px;
@@ -252,12 +254,19 @@
             margin-bottom: 16px;
         }
 
+        .player-detail .block-number {
+            color: var(--text-soft);
+            font-family: monospace;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
         .detail-label {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
             margin-bottom: 6px;
-            font-size: 14px;
+            font-size: 16px;
             color: var(--muted);
         }
 
@@ -268,13 +277,13 @@
             align-items: flex-end;
             gap: 4px;
         }
-
+/* 
         .signature-info .block-number {
             color: var(--text-soft);
             font-family: monospace;
             font-size: 12px;
             white-space: nowrap;
-        }
+        } */
 
         .signature-info a {
             color: var(--link);
@@ -424,27 +433,101 @@
                 white-space: nowrap;
             }
         }
+        /* 公式按钮和弹窗样式 */
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative; /* 为气泡定位 */
+        }
 
+        .btn-formula {
+            background: transparent;
+            border: 1px solid var(--border-light);
+            color: var(--muted);
+            padding: 6px 16px;
+            font-size: 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-formula:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .formula-popup {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            width: 400px;
+            background: var(--card);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: none;
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .formula-popup.show {
+            display: block;
+        }
+
+        .formula-popup p {
+            margin-bottom: 8px;
+        }
+
+        .formula-popup code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px 4px;
+            border-radius: 4px;
+            color: var(--accent);
+        }
+
+        @media (max-width: 640px) {
+            .formula-popup {
+                width: 280px;
+                right: 0;
+            }
+        }
 
     </style>
 </head>
 <body>
 <div class="container">
     <div class="header">
-        <h1>《对战》· 哈希验证</h1>
+        <h1>Hash验证器</h1>
     </div>
 
     <div class="card">
         <div class="card-header">
             <h2>验证说明</h2>
+            <button class="btn btn-formula" id="formulaBtn">公式</button>
+            <div class="formula-popup" id="formulaPopup">
+                <p><strong>📐 计算流程</strong></p>
+                <p><code>userSignBytes = bs58.decode(userSign)</code></p>
+                <p><code>blockHashBytes = bs58.decode(blockHash)</code></p>
+                <p><code>combined = userSignBytes.concat(blockHashBytes)</code></p>
+                <p><code>hash₁ = SHA256(combined)</code></p>
+                <p><code>hexStr₁ = bytesToHex(hash₁)</code></p>
+                <p><code>inputBytes = TextEncoder.encode(previousHex)</code></p>
+                <p><code>hashₙ = SHA256(inputBytes)</code></p>
+                <p><code>hexStrₙ = bytesToHex(hashₙ)</code></p>
+                <p><code>norm = floor( (hash / (2^256 - 1)) × 99999 ) + 1</code></p>
+            </div>
         </div>
         <div class="remark-list">
-            <span class="remark-item">· 每位玩家都会获取专属于您的 <a href="https://solscan.io" target="_blank">Solana 钱包地址</a>；</span>
+            <span class="remark-item">· 每位玩家都会获取专属于您的Solana 钱包地址；</span>
             <span class="remark-item">· 游戏时产生的交易签名和区块哈希随机、唯一且不可更改；</span>
             <span class="remark-item remark-highlight">· 第一轮：将签名与区块哈希的字节数组拼接，进行 SHA256 加密，得到 64 位的结果；</span>
             <span class="remark-item remark-highlight">· 后续轮次：将上一轮结果的十六进制字符串（即上一轮显示的 Hex）视为普通文本，使用 TextEncoder 编码为 UTF-8 字节，再对这些字节进行 SHA256 加密，得到新的 64 位的结果；</span>
             <span class="remark-item remark-highlight">· 每一轮结果以十六进制小写字符串显示，并同时显示归一化值(范围 1–100000，向下取整)；</span>
-            <span class="remark-item remark-highlight">· 归一化计算：将64字节哈希值转换为浮点数，除以最大值 (2^256-1) 得到 [0,1] 区间的小数，再乘以 99999 后向下取整后 +1，得到 1–100000 的整数。</span>
+            <span class="remark-item remark-highlight">· 归一化计算：将 64 位的哈希值转换为浮点数，除以最大值 (2^256-1) 得到 [0,1] 区间的小数，再乘以 99999 后向下取整后 +1，得到 1–100000 的整数。</span>
             <span class="remark-item">· 任何支持 SHA256 验算的网站都可验证哈希真伪。</span>
         </div>
 
@@ -457,10 +540,10 @@
                 <label>游戏模式</label>
                 <div class="info-value" id="battleMode">-多人对战-</div>
             </div> -->
-            <div class="info-item">
+            <!-- <div class="info-item">
                 <label>创建者</label>
                 <div class="info-value" id="createUser">----</div>
-            </div>
+            </div> -->
             <div class="info-item">
                 <label>参与玩家</label>
                 <div class="info-value" id="joinNum">2</div>
@@ -572,7 +655,7 @@
         document.getElementById('joinNum').innerText = userNum;
 
         // document.getElementById('battleMode').innerText = '-多人对战-';
-        document.getElementById('createUser').innerText = '----';
+        // document.getElementById('createUser').innerText = '----';
 
         renderPlayerCards(params);
         let allFilled = true;
@@ -605,6 +688,21 @@
         document.getElementById('round').addEventListener('keydown', (e) => {
             if (e.key === 'Enter') verifyGames();
         });
+
+        // 公式按钮交互
+        const formulaBtn = document.getElementById('formulaBtn');
+        const formulaPopup = document.getElementById('formulaPopup');
+        if (formulaBtn && formulaPopup) {
+            formulaBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                formulaPopup.classList.toggle('show');
+            });
+            document.addEventListener('click', (e) => {
+                if (!formulaBtn.contains(e.target) && !formulaPopup.contains(e.target)) {
+                    formulaPopup.classList.remove('show');
+                }
+            });
+        }
     }
 
     function renderPlayerCards(params) {
@@ -619,14 +717,10 @@
             html += `
                 <div class="player-card" id="playerCard_${i-1}">
                     <div class="player-header">
-                        <div class="player-name">${playerName}</div>
-
-                        <!-- 签名行：区块号整合在右侧（区块号在上，链接在下） -->
                         <div class="player-detail">
                             <div class="detail-label">
                                 <span>签名</span>
                                 <div class="signature-info">
-                                    <span class="block-number">区块号: ${block || '--'}</span>
                                     <a href="https://solscan.io/tx/${sign}" target="_blank">在 Solana 查看 →</a>
                                 </div>
                             </div>
@@ -637,7 +731,10 @@
 
                         <!-- 区块哈希 -->
                         <div class="player-detail">
-                            <div class="detail-label">区块哈希</div>
+                            <div class="detail-label">
+                                <span>区块哈希&nbsp&nbsp&nbsp<span>
+                                <span class="block-number">区块号: ${block || '--'}</span>
+                            </div>
                             <div class="detail-value">
                                 <input id="blockHash_${i-1}" value="${hash}" placeholder="Base58 区块哈希">
                             </div>
@@ -728,7 +825,7 @@
                 let normalized = await normalizeHash(hashBytes);
                 roundsHtml.push(`
                     <div class="round-item">
-                        <div class="round-title">第 1 回合 · 签名+区块哈希</div>
+                        <div class="round-title">第 1 回合 · SHA256</div>
                         <div class="round-hash">
                             <span>${hexStr}</span>
                             <span>${normalized}</span>
