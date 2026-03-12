@@ -531,9 +531,9 @@
             <span class="remark-item">· 任何支持 SHA256 验算的网站都可验证哈希真伪。</span>
         </div>
 
-        <div class="card-header">
+        <!-- <div class="card-header">
             <h2>游戏信息</h2>
-        </div>
+        </div> -->
 
         <div class="game-info-grid">
             <!-- <div class="info-item">
@@ -545,11 +545,13 @@
                 <div class="info-value" id="createUser">----</div>
             </div> -->
             <div class="info-item">
-                <label>参与玩家</label>
-                <div class="info-value" id="joinNum">2</div>
+                <label>数量</label>
+                <div class="info-value">
+                    <input type="number" id="joinNum" min="2" max="3" value="2">
+                </div>
             </div>
             <div class="info-item">
-                <label>游戏回合</label>
+                <label>回合</label>
                 <div class="info-value">
                     <input type="number" id="round" min="0" max="100" value="5">
                 </div>
@@ -652,8 +654,25 @@
         const params = getUrlParams();
         userNum = params.playerCount;
         document.getElementById('round').value = params.round;
-        document.getElementById('joinNum').innerText = userNum;
-
+        document.getElementById('joinNum').value = userNum;
+        const joinNumInput = document.getElementById('joinNum');
+        joinNumInput.addEventListener('input', function(event) {
+            const newCount = parseInt(event.target.value) || 2; 
+            const validatedCount = Math.min(Math.max(newCount, 2), 3); 
+            if (validatedCount !== userNum) {
+                userNum = validatedCount; // 更新全局玩家数量
+                // 玩家數量重新渲染頁面
+                renderPlayerCards(params); 
+                initEmptyResults();
+                for (let i = 0; i < userNum; i++) {
+                    const signInput = document.getElementById(`userSign_${i}`);
+                    const hashInput = document.getElementById(`blockHash_${i}`);
+                    if (signInput) signInput.addEventListener('input', updateVerifyButton);
+                    if (hashInput) hashInput.addEventListener('input', updateVerifyButton);
+                }
+                updateVerifyButton(); // 更新按钮状态
+            }
+        });
         // document.getElementById('battleMode').innerText = '-多人对战-';
         // document.getElementById('createUser').innerText = '----';
 
@@ -680,6 +699,7 @@
             if (hashInput) hashInput.addEventListener('input', updateVerifyButton);
         }
         updateVerifyButton();
+
 
         document.getElementById('verifyBtn').addEventListener('click', verifyGames);
         document.getElementById('clearBtn').addEventListener('click', () => {
