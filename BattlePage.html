@@ -525,7 +525,7 @@
             <span class="remark-item">· 每位玩家都会获取专属于您的Solana 钱包地址；</span>
             <span class="remark-item">· 游戏时产生的交易签名和区块哈希随机、唯一且不可更改；</span>
             <span class="remark-item remark-highlight">· 第一轮：将签名与区块哈希的字节数组拼接，进行 SHA256 加密，得到 64 位的结果；</span>
-            <span class="remark-item remark-highlight">· 后续轮次：将上一轮结果的十六进制字符串（即上一轮显示的 Hex）视为普通文本，使用 TextEncoder 编码为 UTF-8 字节，再对这些字节进行 SHA256 加密，得到新的 64 位的结果；</span>
+            <span class="remark-item remark-highlight">· 后续回合：将上一轮结果的十六进制字符串（即上一轮显示的 Hex）视为普通文本，使用 TextEncoder 编码为 UTF-8 字节，再对这些字节进行 SHA256 加密，得到新的 64 位的结果；</span>
             <span class="remark-item remark-highlight">· 每一轮结果以十六进制小写字符串显示，并同时显示归一化值(范围 1–100000，向下取整)；</span>
             <span class="remark-item remark-highlight">· 归一化计算：将 64 位的哈希值转换为浮点数，除以最大值 (2^256-1) 得到 [0,1] 区间的小数，再乘以 99999 后向下取整后 +1，得到 1–100000 的整数。</span>
             <span class="remark-item">· 任何支持 SHA256 验算的网站都可验证哈希真伪。</span>
