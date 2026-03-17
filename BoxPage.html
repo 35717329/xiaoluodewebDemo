@@ -509,7 +509,8 @@
                     </div>
                 </div>
                 <div class="result-info-card-item" id="resultRound">
-                    <div class="empty-rounds">点击 "验证结果" 按钮，进行验证</div>
+                    <div class="empty-rounds"></div>
+                    <!-- 点击 "验证结果" 按钮，进行验证 -->
                 </div>
             </div>
         </div>
@@ -694,8 +695,9 @@
 
     function initEmptyResult() {
         document.getElementById('resultRound').innerHTML = `
-            <div class="empty-rounds">点击 "验证结果" 按钮，进行验证</div>
+            
         `;
+        // <div class="empty-rounds">点击 "验证结果" 按钮，进行验证</div>
     }
 
     function getQueryString(name) {

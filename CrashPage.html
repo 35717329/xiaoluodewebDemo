@@ -477,7 +477,7 @@
 
     // 十六进制转字节数组
     function hexToBytes(hex) {
-        if (hex.length % 2 !== 0) throw new Error('Invalid hex string');
+        // if (hex.length % 2 !== 0) throw new Error('Invalid hex string');
         const bytes = new Uint8Array(hex.length / 2);
         for (let i = 0; i < hex.length; i += 2) {
             bytes[i / 2] = parseInt(hex.substr(i, 2), 16);
@@ -649,8 +649,9 @@
 
     function initEmptyResult() {
         document.getElementById('resultRound').innerHTML = `
-            <div class="empty-rounds">点击 "验证结果" 按钮，进行验证</div>
+            
         `;
+        // <div class="empty-rounds">点击 "验证结果" 按钮，进行验证</div>
     }
 
     function getQueryString(name) {
