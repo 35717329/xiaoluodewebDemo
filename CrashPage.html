@@ -473,7 +473,9 @@
 </div>
 
 <script type="module">
-    import bs58 from "https://cdn.jsdelivr.net/npm/base-x@4.0.0/+esm";
+    import basex from "https://cdn.jsdelivr.net/npm/base-x@4.0.0/+esm";
+    const ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+    const bs58 = basex(ALPHABET);
 
     // 十六进制转字节数组
     function hexToBytes(hex) {
