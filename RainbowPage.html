@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Hash验证器</title>
+    <style>
+        :root {
+            --bg: #0b1220;
+            --card: #0f1724;
+            --muted: #9aa4b2;
+            --accent: #00d1b2;
+            --accent-dark: #00a88f;
+            --glass: rgba(255, 255, 255, 0.03);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --text-soft: #6b7b98;
+            --link: #28cfa5;
+            --border-light: rgba(255, 255, 255, 0.05);
+            --text-secondary: #a3b1cc;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(180deg, #071122 0%, #0b1220 100%);
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            color: #e6eef6;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            color: var(--muted);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .card-header {
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .card-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .remark-list {
+            display: grid;
+            grid-template-columns: repeat(1, 1fr);
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+
+        .remark-highlight {
+            color: #ffd700; /* 金色 */
+            font-weight: 600;
+            background: rgba(255, 215, 0, 0.1);
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+
+        .remark-list-item {
+            font-family: "Microsoft YaHei";
+            font-size: 14px;
+            font-weight: normal;
+            line-height: 14px;
+            letter-spacing: normal;
+            color: #A3B1CC;
+        }
+
+        .remark-list-item a {
+            color: #28CFA5;
+        }
+
+        /* 游戏信息网格 */
+        .game-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            align-items: end;
+            background-color: #0D1726;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .info-item label {
+            font-size: 14px;
+            color: var(--muted);
+            font-weight: 500;
+        }
+
+        .info-value {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            padding: 10px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            color: #C8D8F8;
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+
+        /* .info-value:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        } */
+
+        .info-value input {
+            width: 100%;
+            border: none;
+            background: transparent;
+            outline: none;
+            color: #C8D8F8;
+            font-size: 16px;
+        }
+
+        .info-value span {
+            color: #C8D8F8;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            justify-self: start;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, var(--accent), var(--accent-dark));
+            color: #021217;
+        }
+
+        /* .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 209, 178, 0.3);
+        } */
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--muted);
+        }
+
+        /* .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.05);
+        } */
+
+        .result-info {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .result-info-card {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .result-info-card-item {
+            margin-bottom: 16px;
+        }
+
+        .result-info-card-item .title {
+            font-size: 16px;
+            line-height: 32px;
+            display: inline-block;
+            margin-bottom: 4px;
+            color: var(--muted);
+        }
+
+        .div-round {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            padding: 8px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            margin-bottom: 4px;
+            font-size: 14px;
+            color: var(--muted);
+        }
+
+        .round-hash-item {
+            display: grid;
+            align-items: center;
+            grid-template-columns: 1fr;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            margin-bottom: 12px;
+            word-break: break-word;
+            gap: 12px;
+        }
+
+        .round-hash-item .round-hash-item-son {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .round-hash-item .hash-str {
+            font-family: monospace;
+            font-size: 16px;
+            color: #C8D8F8;
+        }
+
+        .round-hash-item-son span:first-child {
+            font-family: monospace;
+            font-size: 12px;
+        }
+
+        .round-hash-item-son span:nth-child(2) {
+            margin-right: auto;
+        }
+
+        .round-hash-item .hash-number {
+            color: #35DDDD;
+            font-weight: 600;
+            /*不允许换行*/
+            /*white-space: nowrap;*/
+        }
+
+        .empty-rounds {
+            text-align: center;
+            color: var(--muted);
+            padding: 30px 20px;
+            font-size: 14px;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--accent);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .hint {
+            margin-top: 16px;
+            color: var(--muted);
+            font-size: 14px;
+            text-align: center;
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                padding: 16px;
+            }
+
+            .game-info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                justify-self: stretch;
+            }
+
+            .btn {
+                flex: 1;
+            }
+
+            .round-hash-item {
+                align-items: center;
+                gap: 8px;
+            }
+
+            .round-hash-item .hash-str {
+                font-size: 16px;
+                color: #C8D8F8;
+            }
+
+            .round-hash-item-son span:first-child {
+                font-size: 12px;
+            }
+
+            .round-hash-item-son span:nth-child(2) {
+                margin-right: auto;
+            }
+
+            .round-hash-item .hash-number {
+                color: #35DDDD;
+                font-weight: 600;
+                /*不允许换行*/
+                /*white-space: nowrap;*/
+            }
+        }
+
+        /* 公式按钮和弹窗样式 */
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative; /* 为气泡定位 */
+        }
+
+        .btn-formula {
+            background: transparent;
+            border: 1px solid var(--border-light);
+            color: var(--muted);
+            padding: 6px 16px;
+            font-size: 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-formula:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .formula-popup {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            width: 400px;
+            background: var(--card);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: none;
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .formula-popup.show {
+            display: block;
+        }
+
+        .formula-popup p {
+            margin-bottom: 8px;
+        }
+
+        .formula-popup code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px 4px;
+            border-radius: 4px;
+            color: var(--accent);
+        }
+
+        @media (max-width: 640px) {
+            .formula-popup {
+                width: 280px;
+                right: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>Hash验证器</h1>
+        <!-- <p>从 URL 获取初始哈希（十六进制），迭代显示每轮结果</p> -->
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2>验证说明</h2>
+            <button class="btn btn-formula" id="formulaBtn">公式</button>
+            <div class="formula-popup" id="formulaPopup">
+                <p><strong>📐 爆点计算流程</strong></p>
+                <p><code>hash₁ = hexString (输入的初始哈希)</code></p>
+                <p><code>inputBytes = TextEncoder.encode(previousHex)</code></p>
+                <p><code>hashₙ = SHA256(inputBytes)</code></p>
+                <p><code>hexStrₙ = bytesToHex(hashₙ)</code></p>
+                <p><code>value = int(hexStr[0:13], 16)</code></p>
+                <p><code>X = value / 2^52</code></p>
+                <p><code>multiplier = 99 / (1 - X)</code></p>
+                <p><code>result = round( max(100, multiplier) ) / 100 + "x"</code></p>
+            </div>
+        </div>
+        <div class="remark-list">
+            <span class="remark-list-item remark-highlight">· 我们预先通过加密算法生成一千万个随机数字，并按照倒序依次对应每一轮游戏——也就是说，第一轮的结果是这串数字的最后一个，第二轮是倒数第二个，以此类推；</span>
+            <span class="remark-list-item remark-highlight">· 这意味着所有回合的彩虹旋风数值在游戏开始前就已经确定，完全独立于玩家的消费行为，杜绝了任何形式的实时操纵；</span>
+            <span class="remark-list-item remark-highlight">· 每一轮的彩虹旋风结果均可通过公开的哈希算法进行追溯与验证；</span>
+            <span class="remark-list-item">· 任何支持 SHA256 验算的网站都可验证哈希真伪。</span>
+        </div>
+
+        <!-- 游戏信息网格 -->
+        <div class="game-info-grid">
+            <div class="info-item">
+                <label>期号</label>
+                <div class="info-value">
+                    <input id="issue" value="" readonly>
+                </div>
+            </div>
+            <div class="info-item">
+                <label>hash长度分割</label>
+                <div class="info-value">
+                    <input id="hashSubLen" type="number" value="">
+                </div>
+            </div>
+        </div>
+        <div class="game-info-grid">
+            <div class="info-item">
+                <label>回合</label>
+                <div class="info-value">
+                    <input type="number" placeholder="请输入回合数（0~100）" id="round" min="0" max="100" value="0">
+                </div>
+            </div>
+            <div class="button-group">
+                <button id="verifyBtn" class="btn btn-primary" disabled>
+                    <span>验证结果</span>
+                </button>
+                <button id="clearBtn" class="btn btn-secondary">清除结果</button>
+            </div>
+        </div>
+
+        <div class="card-header">
+            <h2>开奖哈希</h2>
+        </div>
+        <div class="result-info">
+            <div class="result-info-card">
+                <div class="result-info-card-item">
+                    <span class="title">初始哈希值 (Hex)</span>
+                    <div class="info-value">
+                        <input id="hashValue" placeholder="输入十六进制哈希" value="">
+                    </div>
+                </div>
+            </div>
+            <div class="result-info-card">
+                <div class="result-info-card-item">
+                    <div>
+                        <span style="font-size: 14px; color: #3B5580;">哈希值 (Hex)</span>
+                        <span style="font-size: 14px; color: #3B5580; float: right;">结果</span>
+                    </div>
+                </div>
+                <div class="result-info-card-item" id="resultRound">
+                    <!--                    <div class="empty-rounds">点击 "验证结果" 按钮，进行验证</div>-->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- <div class="hint">
+        规则：第一轮显示输入的十六进制哈希，后续每轮对上一轮哈希进行 SHA256 迭代，结果显示为十六进制和归一化值（1-100000）。
+    </div> -->
+</div>
+
+<script type="module">
+    import basex from "https://cdn.jsdelivr.net/npm/base-x@4.0.0/+esm";
+
+    const ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+    const bs58 = basex(ALPHABET);
+
+    //data get set-------------------------------------------------------------------------------------------
+    //数据源
+    let data = {
+        //hash值
+        hashValue: null,
+        //是否有星星
+        hasStar: false,
+        //期号
+        issue: "",
+        //推算历史回合数
+        round: 0,
+        //分割长度
+        hashSubLen: 0,
+    };
+
+    if (typeof window.Proxy !== 'undefined' && window.Proxy !== null) {
+        console.log('✅ 支持 Proxy');
+        // 使用 Proxy 的代码
+        data = new Proxy(data, {
+            get(target, prop) {
+                // console.log(`读取 ${prop}:`, target[prop]);
+                return target[prop];
+            },
+            set(target, prop, newVal) {
+                // console.log(">>>>  ", target, prop, newVal)
+                target[prop] = newVal;
+                // 触发视图更新（而不是在 Proxy 里直接操作 DOM）
+                updateView();
+                return true;
+            }
+        });
+    } else {
+        console.log('❌ 不支持 Proxy');
+        // 降级方案，比如使用 Object.defineProperty
+        // 使用  Object.defineProperty 对每一个对象进行拦截，兼容性好---------------------------------
+        let _hashValue = data.hashValue;  // 私有变量
+        Object.defineProperty(data, 'hashValue', {
+            get: function () {
+                return _hashValue;
+            },
+            set: function (newVal) {
+                if (_hashValue !== newVal) {
+                    _hashValue = newVal;
+                    updateView();  // 触发视图更新
+                }
+            }
+        });
+        //暂不处理，其他属性自行补全
+    }
+
+    //data get set-------------------------------------------------------------------------------------------
+
+
+    function updateView() {
+        document.getElementById("hashValue").value = data.hashValue;
+        document.getElementById("round").value = data.round;
+        document.getElementById("issue").value = data.issue;
+        document.getElementById("hashSubLen").value = data.hashSubLen;
+    }
+
+
+    // 十六进制转字节数组
+    function hexToBytes(hex) {
+        // if (hex.length % 2 !== 0) throw new Error('Invalid hex string');
+        const bytes = new Uint8Array(hex.length / 2);
+        for (let i = 0; i < hex.length; i += 2) {
+            bytes[i / 2] = parseInt(hex.substr(i, 2), 16);
+        }
+        return bytes;
+    }
+
+    // 字节数组转十六进制
+    function bytesToHex(bytes) {
+        return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    async function hashData(data) {
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        return new Uint8Array(hashBuffer);
+    }
+
+
+    // 归一化函数：返回向下取整的两位小数字符串（如 "1.70"）
+    async function normalizeHash(decoded) {
+        try {
+            // 1. 计算哈希值（djb2 算法，兼顾分布和效率）
+            let hash = 5381;
+            for (let i = 0; i < decoded.length; i++) {
+                hash = (hash * 33) ^ decoded.charCodeAt(i);
+            }
+            // 2. 取绝对值并限制在 32 位无符号整数范围
+            hash = Math.abs(hash);
+            // 3. 归一化到 [0, 1]（除以最大可能的 32 位无符号整数 4294967295）
+            return Math.ceil(hash / 4294967295 * 24);
+        } catch (e) {
+            console.error('归一化错误:', e);
+            return "1.00";
+        }
+    }
+
+
+    function updateVerifyButton() {
+        const verifyBtn = document.getElementById('verifyBtn');
+        verifyBtn.disabled = !data.hashValue;
+    }
+
+    async function verifyGames() {
+        const blockHashHex = data.hashValue;
+        if (!blockHashHex) {
+            alert(`请填写十六进制哈希值（0~9、a~f 不区分大小写），填写的 ${data.hashValue} 不符合条件`);
+            return;
+        }
+
+        // let round = parseInt(document.getElementById('round').value);
+        let round = data.round;
+        if (isNaN(round) || round < 1) round = 0;
+        if (round === 0) {
+            document.getElementById("resultRound").innerHTML = "";
+            return;
+        }
+        disableSubmitBtn(true);
+
+        let arr = [];
+        let result = {
+            //原hash
+            hash: null,
+            num: 0,
+            //外圈
+            outerRing: null,
+            outerRingNum: 0,
+            outerStar: null,
+            outerStarNum: 0,
+            //内圈
+            innerRing: null,
+            innerRingNum: 0,
+            innerStar: null,
+            innerStarNum: 0,
+        };
+        try {
+            // 第一轮：将输入十六进制转字节数组
+            let currentHash;
+            try {
+                currentHash = hexToBytes(blockHashHex);
+            } catch (e) {
+                alert('无效的十六进制字符串');
+                disableSubmitBtn(false);
+                return;
+            }
+
+            const roundsHtml = [];
+            const encoder = new TextEncoder();
+
+            // 第一轮结果
+            // let multiplier = await normalizeHash(currentHash);
+            let multiplier = 0;
+            result.hash = blockHashHex;
+            result.num = multiplier;
+            result.outerRing = blockHashHex.slice(0, data.hashSubLen);
+            result.outerRingNum = await normalizeHash(result.outerRing);
+            result.innerRing = blockHashHex.slice(data.hashSubLen);
+            result.innerRingNum = await normalizeHash(result.innerRing);
+            arr.push(result);
+
+            // 后续回合：对上一轮哈希的十六进制字符串（UTF-8）进行哈希
+            let previousHex = blockHashHex;
+            for (let i = 2; i <= round; i++) {
+                const inputBytes = encoder.encode(previousHex);
+                const hashBytes = await hashData(inputBytes);
+                const hexStr = bytesToHex(hashBytes);
+                // multiplier = await normalizeHash(hashBytes);
+                multiplier = 0;
+                previousHex = hexStr;
+                let result = {
+                    //原hash
+                    hash: null,
+                    num: 0,
+                    //外圈
+                    outerRing: null,
+                    outerRingNum: 0,
+                    outerStar: null,
+                    outerStarNum: 0,
+                    //内圈
+                    innerRing: null,
+                    innerRingNum: 0,
+                    innerStar: null,
+                    innerStarNum: 0,
+                };
+                result.hash = hexStr;
+                result.num = multiplier;
+                result.outerRing = hexStr.slice(0, data.hashSubLen);
+                result.outerRingNum = await normalizeHash(result.outerRing);
+                result.innerRing = hexStr.slice(data.hashSubLen);
+                result.innerRingNum = await normalizeHash(result.innerRing);
+                arr.push(result);
+            }
+
+            console.log(">>> ", arr);
+
+            for (let i = 0; i < arr.length; i++) {
+                let result = arr[i];
+                roundsHtml.push(`
+                     <div class="round-hash-item">
+                        <div>第 <span style="color: #20bc72">${arr.length - i}</span> 回合</div>
+                        <div>原始：<span class="hash-str">${result.hash}</span></div>
+                        <div class="round-hash-item-son">
+                            <span>前${data.hashSubLen}位：</span>
+                            <span class="hash-str">${result.outerRing}</span>
+                            <span class="hash-number">${result.outerRingNum}</span>
+                        </div>
+                        <div class="round-hash-item-son">
+                            <span>后${result.hash.length - data.hashSubLen}位：</span>
+                            <span class="hash-str">${result.innerRing}</span>
+                            <span class="hash-number">${result.innerRingNum}</span>
+                        </div>
+                    </div>
+                `);
+            }
+
+            document.getElementById("resultRound").innerHTML = roundsHtml.join('');
+        } catch (error) {
+            console.error('验证错误:', error);
+            alert('验证过程中发生错误: ' + error.message);
+        } finally {
+            disableSubmitBtn(false);
+        }
+    }
+
+    function disableSubmitBtn(value) {
+        const verifyBtn = document.getElementById('verifyBtn');
+        verifyBtn.disabled = value;
+        if (value) {
+            verifyBtn.innerHTML = '<div class="loading"></div><span>验证中...</span>';
+        } else {
+            verifyBtn.innerHTML = '<span>验证结果</span>';
+            updateVerifyButton();
+        }
+    }
+
+    let dom_input_round = null;
+    let dom_input_hashValue = null;
+    let dom_input_hashSubLen = null;
+
+    function initPage() {
+        getUrlParams();
+        updateView();
+
+        initEmptyResult();
+        updateVerifyButton();
+
+        dom_input_hashValue = document.getElementById('hashValue');
+        dom_input_hashValue.addEventListener('input', updateHash);
+
+        dom_input_hashSubLen = document.getElementById('hashSubLen');
+        dom_input_hashSubLen.addEventListener('input', updateHashSubLen);
+
+        document.getElementById('verifyBtn').addEventListener('click', verifyGames);
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            initEmptyResult();
+        });
+
+        dom_input_round = document.getElementById('round');
+        dom_input_round.addEventListener('keydown', updateRound);
+        dom_input_round.addEventListener('input', updateRound);
+
+
+        // 公式按钮交互
+        const formulaBtn = document.getElementById('formulaBtn');
+        const formulaPopup = document.getElementById('formulaPopup');
+        if (formulaBtn && formulaPopup) {
+            formulaBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                formulaPopup.classList.toggle('show');
+            });
+            document.addEventListener('click', (e) => {
+                if (!formulaBtn.contains(e.target) && !formulaPopup.contains(e.target)) {
+                    formulaPopup.classList.remove('show');
+                }
+            });
+        }
+    }
+
+    function initEmptyResult() {
+        document.getElementById('resultRound').innerHTML = `
+            <div class="empty-rounds">点击 "验证结果" 按钮，进行验证</div>
+        `;
+    }
+
+    function getUrlParams() {
+        data.round = getQueryString("round") != null ? getQueryString("round") : 0;
+        data.issue = getQueryString("issue");
+        data.hashValue = getQueryString("blockHash");
+        data.hasStar = getQueryString("hasStar");
+        data.hashSubLen = data.hashValue != null ? data.hashValue.length / 2 : 0;
+    }
+
+    function getQueryString(name) {
+        var reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)', 'i');
+        var r = window.location.search.substr(1).match(reg);
+        if (r != null) {
+            return unescape(r[2]);
+        }
+        return null;
+    }
+
+    function isHex(value) {
+        let str = /^[0-9A-Fa-f]+$/;
+        // 正则表达式检查
+        let result = str.test(value);
+        if (!result && value !== "") {
+            alert(`请填写十六进制哈希值（0~9、a~f 不区分大小写），填写的 ${data.hashValue} 不符合条件`);
+        }
+        return result;
+    }
+
+    //更新回合数
+    function updateRound(e) {
+        // console.log(">>> ", e.key)
+        //最大最小值判断
+        if (this.validity.rangeUnderflow) {
+            data.round = this.min;
+        }
+        if (this.validity.rangeOverflow) {
+            data.round = this.max;
+        }
+        //回车键判断
+        if (e.key === 'Enter') {
+            verifyGames();
+        }
+        data.round = dom_input_round.value;
+    }
+
+    //更新hash
+    function updateHash(e) {
+        data.hashValue = dom_input_hashValue.value;
+        data.hashSubLen = Math.ceil(dom_input_hashValue.value.length / 2);
+        updateVerifyButton();
+        isHex(data.hashValue);
+    }
+
+    //更新截取长度
+    function updateHashSubLen() {
+        data.hashSubLen = dom_input_hashSubLen.value;
+    }
+
+    document.addEventListener('DOMContentLoaded', initPage);
+</script>
+</body>
+</html>
