@@ -877,10 +877,6 @@
         defaultCode = `
 //计算基础hash值
 async function computeBaseHash(str) {
-    //字符串长度不是偶数，则在字符串前补0
-    if (str.length % 2 === 1) {
-        str = "0" + str;
-    }
     //1.转换为 UTF-8 编码字节序列
     const encoder = new TextEncoder();
     const bytes = encoder.encode(str);
@@ -917,7 +913,7 @@ async function normalizeHash(decoded) {
         return Number(scaledBigInt);
     } catch (e) {
         console.error('归一化错误:', e);
-        return 1;
+        throw new Error("normalizeHash Fail:" + e.message);
     }
 }
 class UserInfo {
@@ -972,6 +968,11 @@ return await main();
     }
 
     async function initPage() {
+        let isSupport = showCryptoStatus();
+        if (!isSupport) {
+            alert("当前环境不支持 SHA-256 函数计算");
+            return;
+        }
         const params = getUrlParams();
         setCodeAndInfo(params);
         restCode();
@@ -1240,7 +1241,107 @@ return await main();
             showCodeEditorBtn.innerText = `▼ 展开`;
         }
     }
-    
+    //
+    //
+    //
+    //
+    // //计算基础hash值
+    // async function computeBaseHash(str) {
+    //     //字符串长度不是偶数，则在字符串前补0
+    //     // if (str.length % 2 === 1) {
+    //     //     str = "0" + str;
+    //     // }
+    //     //1.转换为 UTF-8 编码字节序列
+    //     const encoder = new TextEncoder();
+    //     const bytes = encoder.encode(str);
+    //     //2.字节数组
+    //     let bytesArr = await computeSha256(bytes);
+    //     //3.拼接16进制字符串
+    //     let hexString = bytesToHex(bytesArr);
+    //     console.log("方法内转换后的16进制字符串： ",hexString);
+    //     return hexString;
+    // }
+    //
+    // //计算字节数组的sha256值
+    // async function computeSha256(data) {
+    //     const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    //     return new Uint8Array(hashBuffer);
+    // }
+    //
+    // //将字节数组转换为十六进制字符串
+    // function bytesToHex(bytes) {
+    //     return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
+    // }
+    //
+    // //对字节数组进行归一化后算出随机值
+    // async function normalizeHash(decoded) {
+    //     try {
+    //         const hashArray = Array.from(decoded);
+    //         let hashValue = 0n;
+    //         for (const byte of hashArray) {
+    //             hashValue = (hashValue << 8n) + BigInt(byte);
+    //         }
+    //         const maxValue = 1n << 256n;          // 2^256
+    //         // 使用 BigInt 计算缩放值，避免精度丢失
+    //         const scaledBigInt = (hashValue * 100000n) / maxValue;
+    //         return Number(scaledBigInt);
+    //     } catch (e) {
+    //         console.error('归一化错误:', e);
+    //         return 1;
+    //     }
+    // }
+    // class UserInfo {
+    //     roundNum = 0;
+    //     hexStr = "";
+    //     boxNum = 0;
+    // }
+    // //根据字符串和回合数生成自己的信息
+    // async function creatSelfInfo(str, roundNum) {
+    //     let info = [];
+    //     const encoder = new TextEncoder();
+    //     let previousHex = str;
+    //     for (let i = 0; i < roundNum; i++) {
+    //         let userInfo = new UserInfo();
+    //         // 将十六进制字符串编码为 UTF-8 字节
+    //         const inputBytes = encoder.encode(previousHex);
+    //         const hashBytes = await computeSha256(inputBytes);
+    //         const hexStr = bytesToHex(hashBytes);
+    //         const normalized = await normalizeHash(hashBytes);
+    //         console.log("当前 ", i);
+    //         console.log("16进制字符串 ", hexStr);
+    //         console.log("随机值 ", normalized);
+    //         userInfo.roundNum = i + 1;
+    //         userInfo.hexStr = hexStr;
+    //         userInfo.boxNum = normalized;
+    //         info.push(userInfo);
+    //         previousHex = hexStr;
+    //     }
+    //
+    //     return info;
+    // }
+    //
+    // async function main() {
+    //     let result = [];
+    //     for (var i = 0; i < 1; i++) {
+    //         var user = ["CFWgPhH8GkAvu6uYzaiCu7nCMLPqeY5qBQiLPBncvAzH","EEU6SeJK7poLHw6JGNsXpQsB7E8vjByoczL8vPYgvfNQ"][i];
+    //         let str = "3vFHCJgKW9ZAHMRyBiE8tPKYHk3zUBQGtapf4ovHuS6o" + "CEWrFvPVybU8vGDoHD2vKqvc78BT4r8WQziC8Qt7TkZA" + "513BpnfcLaW9VFa6KY9Hf1YoFkLvqDSZuBmpvFGq3X1H" + "7JET58fwR3aKp2vc5HMwurpqJPTJLx6muRzmJ5PCYM9E" + "HA5MHEkCCpmuGHWhEvBX7kgcoUspWtFpb63x3WDoeaK";
+    //         console.log(str.length, " =========  ",str);
+    //         let base = await computeBaseHash(str);
+    //         console.log("得到的16进制字符串： ",base);
+    //         //用户自己的公钥
+    //         let userPublicKey = ["CFWgPhH8GkAvu6uYzaiCu7nCMLPqeY5qBQiLPBncvAzH","EEU6SeJK7poLHw6JGNsXpQsB7E8vjByoczL8vPYgvfNQ"][i];
+    //         let basePublicKey = base + userPublicKey;
+    //         console.log(">>>>>>>>>>>  ", basePublicKey);
+    //         //生成自己的信息
+    //         let userInfoList = await creatSelfInfo(basePublicKey, 3);
+    //         console.log("userInfoList  ", userInfoList);
+    //         result.push(userInfoList);
+    //     }
+    //     return result;
+    // }
+    // await main();
+    //
+
     // 用于存储捕获的日志
     let capturedLogs = [];
 
@@ -1258,9 +1359,9 @@ return await main();
         || blockHashLast2Inp.value !== params.blockHash_3
         || blockHashLast3Inp.value !== params.blockHash_4
         || parseInt(roundInput.value) !== params.round
-        || (userWallet0 !== undefined && userWallet0.value !== params.userWallet[0])
-        || (userWallet1 !== undefined && userWallet1.value !== params.userWallet[1])
-        || (userWallet2 !== undefined && userWallet2.value !== params.userWallet[2])
+        || (userWallet0 !== undefined && userWallet0 !== null && userWallet0.value !== params.userWallet[0])
+        || (userWallet1 !== undefined && userWallet1 !== null && userWallet1.value !== params.userWallet[1])
+        || (userWallet2 !== undefined && userWallet2 !== null && userWallet2.value !== params.userWallet[2])
         ) {
             let obj = {};
             obj.blockHash_1 = blockHashAfterInp.value;
@@ -1452,6 +1553,33 @@ return await main();
     })();
 
     document.addEventListener('DOMContentLoaded', initPage);
+
+    // 快速检测并显示浏览器信息
+    function showCryptoStatus() {
+        const status = {
+            hasCrypto: !!window.crypto,
+            hasSubtle: !!(window.crypto && window.crypto.subtle),
+            hasDigest: !!(window.crypto && window.crypto.subtle && crypto.subtle.digest),
+            isSecureContext: window.isSecureContext || false,
+            userAgent: navigator.userAgent
+        };
+
+        console.log('Crypto 状态:', status);
+
+        if (!status.hasCrypto) {
+            console.log('❌ 不支持任何 Crypto API');
+        } else if (!status.hasSubtle) {
+            console.log('⚠️ 支持基础 Crypto，但不支持 Web Crypto API');
+            console.log('   建议升级浏览器: Chrome 37+, Firefox 34+, Safari 11+');
+        } else if (!status.isSecureContext) {
+            console.log('⚠️ Web Crypto API 需要 HTTPS 或 localhost');
+            console.log('   当前环境:', location.protocol);
+        } else {
+            console.log('✅ 完全支持 Web Crypto API');
+        }
+
+        return status;
+    }
 </script>
 </body>
 </html>

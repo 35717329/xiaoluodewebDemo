@@ -122,7 +122,8 @@
 
         .info-item {
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
+            align-items: center;
             gap: 6px;
         }
 
@@ -454,6 +455,11 @@
                 text-align: center;
                 width: 100%;
             }
+
+            .info-item {
+                flex-wrap: wrap;
+                flex: 0 0 100%;
+            }
         }
 
         /* 公式按钮和弹窗样式 */
@@ -556,7 +562,11 @@
             <div class="info-item">
                 <label>回合</label>
                 <div class="info-value">
-                    <input type="number" id="round" min="0" max="100" value="0">
+                    <input type="number" id="round" min="0" max="100" value="">
+                </div>
+                <label>转换率</label>
+                <div class="info-value">
+                    <input type="number" id="ratioInput" min="0" max="100" value="">
                 </div>
             </div>
             <div class="result-info-card-item">
@@ -617,6 +627,16 @@
         }
     });
 
+    const ratioInput = document.getElementById('ratioInput');
+    ratioInput.addEventListener('blur', function() {
+        if (this.validity.rangeUnderflow) {
+            this.value = this.min;
+        }
+        if (this.validity.rangeOverflow) {
+            this.value = this.max;
+        }
+    });
+
     // 绑定事件
     runBtn.addEventListener('click', onRunClick);
     clearOutputBtn.addEventListener('click', clearOutput);
@@ -631,7 +651,7 @@
         result.issue = params.get("issue");
         result.round = parseInt(params.get('round')) || 0;
         result.blockHash = params.get('blockHash') || "";
-        result.ration = parseFloat(params.get('ratio')) || 100;
+        result.ratio = parseFloat(params.get('ratio')) || 100;
         return result;
     }
 
@@ -787,6 +807,11 @@
     }
 
     async function initPage() {
+        let isSupport = showCryptoStatus();
+        if (!isSupport) {
+            alert("当前环境不支持 SHA-256 函数计算");
+            return;
+        }
         const params = getUrlParams();
         setCodeAndInfo(params);
         restCode();
@@ -794,6 +819,7 @@
         let userRoundList = await anonymous_fun.run(defaultCode);
         if (!isCodePass) {
             alert("js代码执行异常，请先处理异常，或重置代码");
+            return;
         }
         for (let i = 0; i < userRoundList.length; i++) {
             setUserRoundInfo(userRoundList[i]);
@@ -842,13 +868,10 @@
     function setCodeAndInfo(params) {
         blockHashInp.value = params.blockHash;
         roundInput.value = params.round;
+        ratioInput.value = params.ratio;
         defaultCode = `
 //计算基础hash值
 async function computeBaseHash(str) {
-    //字符串长度不是偶数，则在字符串前补0
-    if (str.length % 2 === 1) {
-        str = "0" + str;
-    }
     //1.转换为 UTF-8 编码字节序列
     const encoder = new TextEncoder();
     const bytes = encoder.encode(str);
@@ -899,13 +922,13 @@ async function normalizeHash(decoded) {
 
         return normalizedValue;
     } catch (e) {
-        throw new Error("SHA-256 algorithm not found");
+        throw new Error("normalizeHash Fail:" + e.message);
     }
 }
 
 //对归一化值进行转换
 function covertNum(num) {
-    let floorMultiplier = ${params.ration} / (1.0 - num);
+    let floorMultiplier = ${params.ratio} / (1.0 - num);
     if (floorMultiplier < 100) {
         floorMultiplier = 100;
     }
@@ -1005,12 +1028,14 @@ return await main();
         const params = getUrlParams();
         //
         let code = "";
+        let obj = {};
+        obj.blockHash = blockHashInp.value;
+        obj.round = parseInt(roundInput.value);
+        obj.ratio = ratioInput.value;
         if (blockHashInp.value !== params.blockHash
             || parseInt(roundInput.value) !== params.round
+            || parseInt(ratioInput.value) !== params.ratio
         ) {
-            let obj = {};
-            obj.blockHash = blockHashInp.value;
-            obj.round = parseInt(roundInput.value);
             // console.log("fffffff  ", obj);
             setCodeAndInfo(obj);
             code = defaultCode;
@@ -1206,6 +1231,33 @@ return await main();
     })();
 
     document.addEventListener('DOMContentLoaded', initPage);
+
+    // 快速检测并显示浏览器信息
+    function showCryptoStatus() {
+        const status = {
+            hasCrypto: !!window.crypto,
+            hasSubtle: !!(window.crypto && window.crypto.subtle),
+            hasDigest: !!(window.crypto && window.crypto.subtle && crypto.subtle.digest),
+            isSecureContext: window.isSecureContext || false,
+            userAgent: navigator.userAgent
+        };
+
+        console.log('Crypto 状态:', status);
+
+        if (!status.hasCrypto) {
+            console.log('❌ 不支持任何 Crypto API');
+        } else if (!status.hasSubtle) {
+            console.log('⚠️ 支持基础 Crypto，但不支持 Web Crypto API');
+            console.log('   建议升级浏览器: Chrome 37+, Firefox 34+, Safari 11+');
+        } else if (!status.isSecureContext) {
+            console.log('⚠️ Web Crypto API 需要 HTTPS 或 localhost');
+            console.log('   当前环境:', location.protocol);
+        } else {
+            console.log('✅ 完全支持 Web Crypto API');
+        }
+
+        return status;
+    }
 </script>
 </body>
 </html>

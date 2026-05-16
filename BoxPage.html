@@ -828,6 +828,11 @@
     // }
 
     async function initPage() {
+        let isSupport = showCryptoStatus();
+        if (!isSupport) {
+            alert("当前环境不支持 SHA-256 函数计算");
+            return;
+        }
         const params = getUrlParams();
         setCodeAndInfo(params);
         restCode();
@@ -835,6 +840,7 @@
         let userRoundList = await anonymous_fun.run(defaultCode);
         if (!isCodePass) {
             alert("js代码执行异常，请先处理异常，或重置代码");
+            return;
         }
         for (let i = 0; i < userRoundList.length; i++) {
             setUserRoundInfo(userRoundList[i]);
@@ -870,10 +876,6 @@
         defaultCode = `
 //计算基础hash值
 async function computeBaseHash(str) {
-    //字符串长度不是偶数，则在字符串前补0
-    if (str.length % 2 === 1) {
-        str = "0" + str;
-    }
     //1.转换为 UTF-8 编码字节序列
     const encoder = new TextEncoder();
     const bytes = encoder.encode(str);
@@ -910,7 +912,7 @@ async function normalizeHash(decoded) {
         return Number(scaledBigInt);
     } catch (e) {
         console.error('归一化错误:', e);
-        return 1;
+        throw new Error("normalizeHash Fail:" + e.message);
     }
 }
 class UserInfo {
@@ -1203,6 +1205,33 @@ return await main();
     })();
 
     document.addEventListener('DOMContentLoaded', initPage);
+
+    // 快速检测并显示浏览器信息
+    function showCryptoStatus() {
+        const status = {
+            hasCrypto: !!window.crypto,
+            hasSubtle: !!(window.crypto && window.crypto.subtle),
+            hasDigest: !!(window.crypto && window.crypto.subtle && crypto.subtle.digest),
+            isSecureContext: window.isSecureContext || false,
+            userAgent: navigator.userAgent
+        };
+
+        console.log('Crypto 状态:', status);
+
+        if (!status.hasCrypto) {
+            console.log('❌ 不支持任何 Crypto API');
+        } else if (!status.hasSubtle) {
+            console.log('⚠️ 支持基础 Crypto，但不支持 Web Crypto API');
+            console.log('   建议升级浏览器: Chrome 37+, Firefox 34+, Safari 11+');
+        } else if (!status.isSecureContext) {
+            console.log('⚠️ Web Crypto API 需要 HTTPS 或 localhost');
+            console.log('   当前环境:', location.protocol);
+        } else {
+            console.log('✅ 完全支持 Web Crypto API');
+        }
+
+        return status;
+    }
 </script>
 </body>
 </html>
