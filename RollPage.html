@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Hash验证器</title>
+    <title>Hash Validator</title>
     <style>
         :root {
             --bg: #0b1220;
@@ -79,29 +79,6 @@
             font-size: 18px;
             font-weight: 600;
         }
-        .remark-highlight {
-            color: #ffd700; /* 金色 */
-            font-weight: 600;
-            background: rgba(255, 215, 0, 0.1);
-            padding: 2px 4px;
-            border-radius: 4px;
-        }
-
-        .remark-list {
-            display: grid;
-            grid-template-columns: repeat(1, 1fr);
-            gap: 10px;
-            margin-bottom: 24px;
-        }
-
-        .remark-list-item {
-            font-family: "Microsoft YaHei";
-            font-size: 14px;
-            font-weight: normal;
-            line-height: 14px;
-            letter-spacing: normal;
-            color: #A3B1CC;
-        }
 
         .remark-list-item a {
             color: #28CFA5;
@@ -117,8 +94,6 @@
             border-radius: 12px;
             margin-bottom: 8px;
         }
-
-        
 
         .info-item {
             display: flex;
@@ -142,11 +117,6 @@
             transition: all 0.2s;
         }
 
-        /* .info-value:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-        } */
-
         .info-value input {
             width: 100%;
             border: none;
@@ -159,52 +129,6 @@
         .info-value span {
             color: #C8D8F8;
         }
-
-        .button-group {
-            display: flex;
-            gap: 12px;
-            justify-self: end;
-        }
-
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            padding: 10px 24px;
-            border-radius: 8px;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 14px;
-            white-space: nowrap;
-        }
-
-        .btn-primary {
-            background: linear-gradient(90deg, var(--accent), var(--accent-dark));
-            color: #021217;
-        }
-
-        /* .btn-primary:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 209, 178, 0.3);
-        } */
-
-        .btn-primary:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .btn-secondary {
-            background: transparent;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: var(--muted);
-        }
-
-        /* .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.05);
-        } */
 
         .result-info {
             display: grid;
@@ -312,27 +236,10 @@
             font-size: 14px;
         }
 
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: var(--accent);
-            animation: spin 1s ease-in-out infinite;
-        }
-
         @keyframes spin {
             to {
                 transform: rotate(360deg);
             }
-        }
-
-        .hint {
-            margin-top: 16px;
-            color: var(--muted);
-            font-size: 14px;
-            text-align: center;
         }
 
         details {
@@ -442,7 +349,7 @@
             color: #000000;
             padding: 20px 40px;
             border-radius: 5px;
-            display: none; /* 默认隐藏 */
+            display: none;
             z-index: 1000;
         }
 
@@ -453,12 +360,6 @@
             .game-info-grid {
                 grid-template-columns: 1fr;
             }
-            .button-group {
-                justify-self: stretch;
-            }
-            .btn {
-                flex: 1;
-            }
             .round-hash-item {
                 flex-direction: column;
                 align-items: center;
@@ -468,98 +369,45 @@
                 text-align: center;
                 width: 100%;
             }
+            .toolbar {
+                flex-wrap: wrap;
+            }
         }
 
-        /* 公式按钮和弹窗样式 */
         .card-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            position: relative; /* 为气泡定位 */
-        }
-
-        .btn-formula {
-            background: transparent;
-            border: 1px solid var(--border-light);
-            color: var(--muted);
-            padding: 6px 16px;
-            font-size: 14px;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.2s;
-            white-space: nowrap;
-        }
-
-        .btn-formula:hover {
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        .formula-popup {
-            position: absolute;
-            top: calc(100% + 8px);
-            right: 0;
-            width: 400px;
-            background: var(--card);
-            border: 1px solid var(--border-light);
-            border-radius: 8px;
-            padding: 16px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            display: none;
-            color: var(--text-secondary);
-            font-size: 14px;
-            line-height: 1.6;
-        }
-
-        .formula-popup.show {
-            display: block;
-        }
-
-        .formula-popup p {
-            margin-bottom: 8px;
-        }
-
-        .formula-popup code {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 2px 4px;
-            border-radius: 4px;
-            color: var(--accent);
-        }
-
-        @media (max-width: 640px) {
-            .formula-popup {
-                width: 280px;
-                right: 0;
-            }
+            position: relative;
         }
     </style>
 </head>
 <body>
-<div id="toast" class="toast">操作成功</div>
+<div id="toast" class="toast"></div>
 <div class="container">
     <div class="header">
-        <h1>Hash验证器</h1>
+        <h1>Hash Validator</h1>
     </div>
 
     <div class="card">
         <div class="toolbar">
-            <button id="runBtn">&#9654; 运行</button>
-            <button id="clearOutputBtn" class="clear-btn">🗑 清空打印</button>
-            <button id="restCodeBtn" class="rest-btn">&#8635; 重置</button>
-            <button id="showCodeEditorBtn" class="rest-btn">▼ 展开</button>
-            <button id="copyCodeBtn" class="rest-btn">复制代码</button>
+            <button id="runBtn">&#9654; Run</button>
+            <button id="clearOutputBtn" class="clear-btn">🗑 Clear</button>
+            <button id="restCodeBtn" class="rest-btn">&#8635; Rest</button>
+            <button id="showCodeEditorBtn" class="rest-btn">▼ Show</button>
+            <button id="copyCodeBtn" class="rest-btn">Copy Code</button>
         </div>
         <details id="codePanel">
-            <summary>JS代码在线编辑</summary>
+            <summary>Online JS Code Editor</summary>
             <div class="div-code-textarea">
-                <textarea id="codeEditor" class="code-textarea" placeholder="在这里编写 JavaScript 代码...">
+                <textarea id="codeEditor" class="code-textarea" placeholder="Write your JavaScript code here...">
                 </textarea>
             </div>
             <div class="output-area">
                 <div class="output-title">
-                    <span>📋 结果输出</span>
+                    <span>📋 Logs Print</span>
                 </div>
-                <div id="outputContent" class="output-content">✨ 点击「运行代码」查看结果</div>
+                <div id="outputContent" class="output-content">✨ Click "Run" to view the result.</div>
             </div>
         </details>
     </div>
@@ -567,7 +415,7 @@
     <div class="card">
         <div class="game-info-grid">
             <div class="info-item">
-                <label>上一个BlockHash（h-1）</label>
+                <label>Previous BlockHash（H-1）</label>
                 <div class="info-value">
                     <input id="blockHashAfterInp" value="">
                 </div>
@@ -575,7 +423,7 @@
         </div>
         <div class="game-info-grid">
             <div class="info-item">
-                <label>当前BlockHash（h0）</label>
+                <label>Current BlockHash（H0）</label>
                 <div class="info-value">
                     <input id="blockHashInp" value="">
                 </div>
@@ -583,7 +431,7 @@
         </div>
         <div class="game-info-grid">
             <div class="info-item">
-                <label>下一个BlockHash（h1）</label>
+                <label>Next BlockHash（H1）</label>
                 <div class="info-value">
                     <input id="blockHashLast1Inp" value="">
                 </div>
@@ -591,7 +439,7 @@
         </div>
         <div class="game-info-grid">
             <div class="info-item">
-                <label>下一个BlockHash（h2）</label>
+                <label>Next BlockHash（H2）</label>
                 <div class="info-value">
                     <input id="blockHashLast2Inp" value="">
                 </div>
@@ -599,7 +447,7 @@
         </div>
         <div class="game-info-grid">
             <div class="info-item">
-                <label>下一个BlockHash（h3）</label>
+                <label>Next BlockHash（H3）</label>
                 <div class="info-value">
                     <input id="blockHashLast3Inp" value="">
                 </div>
@@ -607,16 +455,16 @@
         </div>
 
         <div class="card-header">
-            <h2>以下数值经过“JS代码在线编辑”运行后得到的结果</h2>
+            <h5>The following values are the results obtained after running the code through the "Online JS Code Editor."</h5>
         </div>
 
         <div class="result-info">
             <div class="result-info-card">
                 <div class="result-info-card-item">
                     <div class="detail-label">
-                        <span>钱包地址</span>
+                        <span>Wallet Address</span>
                         <div class="signature-info">
-                            <a id="solanaScanLink" target="_blank">在 Solana 查看 →</a>
+                            <a id="solanaScanLink" target="_blank">View on Solana →</a>
                         </div>
                     </div>
                     <div class="info-value">
@@ -627,32 +475,24 @@
             <div class="result-info-card">
                 <div class="result-info-card-item">
                     <div>
-                        <span style="font-size: 14px; color: #3B5580;">哈希值 (Hex)</span>
-                        <span style="font-size: 14px; color: #3B5580; float: right">区间值 (0-99999)</span>
+                        <span style="font-size: 14px; color: #3B5580;">Hash Value (Hex)</span>
+                        <span style="font-size: 14px; color: #3B5580; float: right">Interval Value (0-99999)</span>
                     </div>
                 </div>
                 <div class="result-info-card-item" id="resultRound">
                     <div class="empty-rounds"></div>
-                    <!-- 点击 "验证结果" 按钮，进行验证 -->
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- <div class="hint">
-        规则：使用签名+区块哈希进行 SHA256，结果显示为十六进制，归一化值 1-100000。
-    </div> -->
 </div>
 
 <script type="module">
-    // import basex from "https://cdn.jsdelivr.net/npm/base-x@4.0.0/+esm";
-    // const ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
-    // const bs58 = basex(ALPHABET);
-
+    let logs = "";
     let defaultCode = "";
-    //代码运行是否通过
+    //Did the code run successfully?
     let isCodePass = false;
-    // 获取 DOM 元素
+    // get DOM element
     const runBtn = document.getElementById('runBtn');
     const clearOutputBtn = document.getElementById('clearOutputBtn');
     const restCodeBtn = document.getElementById('restCodeBtn');
@@ -668,7 +508,7 @@
     const userWalletInp = document.getElementById("userWalletInp");
     const solanaScanLink = document.getElementById("solanaScanLink");
 
-    // 绑定事件
+    // bind event
     runBtn.addEventListener('click', onRunClick);
     clearOutputBtn.addEventListener('click', clearOutput);
     restCodeBtn.addEventListener('click', restCode);
@@ -677,28 +517,28 @@
     copyCodeBtn.addEventListener("click", onClickCopyCode);
     solanaScanLink.addEventListener("click", onClickLink);
 
-    //弱提示
+    //toast
     function showToast(msg) {
         const toast = document.getElementById('toast');
         toast.innerText = msg.toString();
         toast.style.display = 'block';
         setTimeout(() => {
             toast.style.display = 'none';
-        }, 1000); // 2秒后自动消失
+        }, 1000);
     }
 
-    //复制文本域中的代码
     async function onClickCopyCode() {
         try {
-            await navigator.clipboard.writeText(codeEditor.value);
-            showToast("复制成功");
+            let text = codeEditor.value + "\nExecution Results\n" + logs;
+            await navigator.clipboard.writeText(text);
+            showToast("Copy Success");
         } catch (err) {
-            showToast("复制失败");
-            console.error('无法复制文本: ', err);
+            showToast("Copy Failed");
+            console.error('Unable to copy text: ', err);
         }
     }
 
-    //跳转
+    //jump
     function onClickLink() {
         let params = getUrlParams();
         solanaScanLink.href = "https://solscan.io/account/" + params.userWallet;
@@ -706,12 +546,6 @@
 
     function getUrlParams() {
         const result = {};
-        // let userSign = getQueryString("userSign");
-        // let blockNum = getQueryString("blockNum");
-        // let blockHash = getQueryString("blockHash");
-        // result['userSign'] = userSign != null ? userSign : "";
-        // result['blockNum'] = blockNum != null ? blockNum : "";
-        // result['blockHash'] = blockHash != null ? blockHash : "";
         const params = new URLSearchParams(window.location.search);
         result.round = parseInt(params.get('round')) || 0;
         result.blockHash_1 = params.get('h-1') || "";
@@ -719,97 +553,16 @@
         result.blockHash_2 = params.get('h1') || "";
         result.blockHash_3 = params.get('h2') || "";
         result.blockHash_4 = params.get('h3') || "";
-        result.userWallet = params.get('u1') || "";
+        result.userWallet = params.get('wallet') || "";
         return result;
     }
 
-    // async function hashData(data) {
-    //     const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    //     return new Uint8Array(hashBuffer);
-    // }
-    //
-    // async function normalizeHash(decoded) {
-    //     try {
-    //         const hashArray = Array.from(decoded);
-    //         let hashValue = 0n;
-    //         for (const byte of hashArray) {
-    //             hashValue = (hashValue << 8n) + BigInt(byte);
-    //         }
-    //         const maxValue = 1n << 256n;          // 2^256
-    //         // 使用 BigInt 计算缩放值，避免精度丢失
-    //         const scaledBigInt = (hashValue * 100000n) / maxValue;
-    //         return Number(scaledBigInt);
-    //     } catch (e) {
-    //         console.error('归一化错误:', e);
-    //         return 1;
-    //     }
-    // }
-    //
-    //
-    // // 将字节数组转换为十六进制字符串
-    // function bytesToHex(bytes) {
-    //     return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
-    // }
-    //
-    // function updateVerifyButton() {
-    //     const verifyBtn = document.getElementById('verifyBtn');
-    //     const userSign = document.getElementById('userSign').value.trim();
-    //     const blockHash = document.getElementById('blockHash').value.trim();
-    //     verifyBtn.disabled = !(userSign && blockHash);
-    // }
-    //
-    // async function verifyGames() {
-    //     const userSign = document.getElementById('userSign').value.trim();
-    //     const blockHash = document.getElementById('blockHash').value.trim();
-    //     if (!userSign || !blockHash) {
-    //         alert('请填写签名和区块哈希');
-    //         return;
-    //     }
-    //
-    //     disableSubmitBtn(true);
-    //
-    //     try {
-    //         const decodedSign = bs58.decode(userSign);
-    //         const decodedHash = bs58.decode(blockHash);
-    //
-    //         // 签名 + 区块哈希
-    //         const combined = new Uint8Array(decodedSign.length + decodedHash.length);
-    //         combined.set(decodedSign, 0);
-    //         combined.set(decodedHash, decodedSign.length);
-    //
-    //         const hashBytes = await hashData(combined);
-    //         const hexStr = bytesToHex(hashBytes);
-    //         const normalized = await normalizeHash(hashBytes);
-    //
-    //         const resultHtml = `
-    //             <div class="div-round">第 1 回合 · SHA256</div>
-    //             <div class="round-hash-item">
-    //                 <span>${hexStr}</span>
-    //                 <span>${normalized}</span>
-    //             </div>
-    //         `;
-    //
-    //         document.getElementById("resultRound").innerHTML = resultHtml;
-    //     } catch (error) {
-    //         console.error('验证错误:', error);
-    //         alert('验证过程中发生错误: ' + error.message);
-    //     } finally {
-    //         disableSubmitBtn(false);
-    //     }
-    // }
-
-    function disableSubmitBtn(value) {
-        const verifyBtn = document.getElementById('verifyBtn');
-        verifyBtn.disabled = value;
-        if (value) {
-            verifyBtn.innerHTML = '<div class="loading"></div><span>验证中...</span>';
-        } else {
-            verifyBtn.innerHTML = '<span>验证结果</span>';
-            updateVerifyButton();
-        }
-    }
-
     async function initPage() {
+        let isSupport = showCryptoStatus();
+        if (!isSupport) {
+            alert("The current environment does not support SHA-256 function computation.");
+            return;
+        }
         const params = getUrlParams();
         setCodeAndInfo(params);
         restCode();
@@ -817,7 +570,8 @@
 
         let userRoundList = await anonymous_fun.run(defaultCode);
         if (!isCodePass) {
-            alert("js代码执行异常，请先处理异常，或重置代码");
+            alert("A JavaScript execution error occurred. Please resolve the error or reset the code.");
+            return;
         }
         for (let i = 0; i < userRoundList.length; i++) {
             setUserRoundInfo(userRoundList[i]);
@@ -826,21 +580,20 @@
 
     function initEmptyResult() {
         document.getElementById('resultRound').innerHTML = `
-            <div class="empty-rounds">点击 "运行" 按钮，开始验证</div>
+            <div class="empty-rounds">Click the "Run" button to start verification.</div>
         `;
-        // <div class="empty-rounds">点击 "验证结果" 按钮，进行验证</div>
     }
 
     /**
-     * 设置区块信息和代码
-     * 必须参数
-     * blockHash_1 上一个区块hash
-     * blockHash 当前区块hash
-     * blockHash_2 下一个区块hash1
-     * blockHash_3 下一个区块hash2
-     * blockHash_4 下一个区块hash3
-     * userWallet 用户钱包地址
-     * round 回合数
+     * Set Block Information and Code
+     * Required Parameters
+     * blockHash_1 preHash
+     * blockHash currHash
+     * blockHash_2 next hash1
+     * blockHash_3 next hash2
+     * blockHash_4 next hash3
+     * userWallet user wallet
+     * round rounNnum
      * @param params
      */
     function setCodeAndInfo(params) {
@@ -850,36 +603,32 @@
         blockHashLast2Inp.value = params.blockHash_3;
         blockHashLast3Inp.value = params.blockHash_4;
         userWalletInp.value = params.userWallet;
-        defaultCode = `
-//计算基础hash值
+        defaultCode =
+`//Calculate the hash of the current string.
 async function computeBaseHash(str) {
-    //字符串长度不是偶数，则在字符串前补0
-    if (str.length % 2 === 1) {
-        str = "0" + str;
-    }
-    //1.转换为 UTF-8 编码字节序列
+    //1.Convert to a UTF-8 encoded byte sequence.
     const encoder = new TextEncoder();
     const bytes = encoder.encode(str);
-    //2.字节数组
+    //2.Byte Array
     let bytesArr = await computeSha256(bytes);
-    //3.拼接16进制字符串
+    //3.Concatenate hexadecimal strings
     let hexString = bytesToHex(bytesArr);
-    console.log("方法内转换后的16进制字符串： ",hexString);
+    console.log("Converted hexadecimal string: ",hexString);
     return hexString;
 }
 
-//计算字节数组的sha256值
+//Calculate the SHA-256 value of a byte array.
 async function computeSha256(data) {
     const hashBuffer = await crypto.subtle.digest('SHA-256', data);
     return new Uint8Array(hashBuffer);
 }
 
-//将字节数组转换为十六进制字符串
+//Convert a byte array to a hexadecimal string.
 function bytesToHex(bytes) {
     return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-//对字节数组进行归一化后算出随机值
+//Normalization Function
 async function normalizeHash(decoded) {
     try {
         const hashArray = Array.from(decoded);
@@ -888,12 +637,12 @@ async function normalizeHash(decoded) {
             hashValue = (hashValue << 8n) + BigInt(byte);
         }
         const maxValue = 1n << 256n;          // 2^256
-        // 使用 BigInt 计算缩放值，避免精度丢失
+        // Use BigInt to calculate scaled values to avoid precision loss.
         const scaledBigInt = (hashValue * 100000n) / maxValue;
         return Number(scaledBigInt);
     } catch (e) {
-        console.error('归一化错误:', e);
-        return 1;
+        console.error('NormalizeHash Fail: ', e);
+        throw new Error("normalizeHash Fail:" + e.message);
     }
 }
 class UserInfo {
@@ -901,21 +650,21 @@ class UserInfo {
     hexStr = "";
     boxNum = 0;
 }
-//根据字符串和回合数生成自己的信息
+//Generate your own information based on a string and the round number.
 async function creatSelfInfo(str, roundNum) {
     let info = [];
     const encoder = new TextEncoder();
     let previousHex = str;
     for (let i = 0; i < roundNum; i++) {
         let userInfo = new UserInfo();
-        // 将十六进制字符串编码为 UTF-8 字节
+        // Encode a hexadecimal string into UTF-8 bytes.
         const inputBytes = encoder.encode(previousHex);
         const hashBytes = await computeSha256(inputBytes);
         const hexStr = bytesToHex(hashBytes);
         const normalized = await normalizeHash(hashBytes);
-        // console.log("当前 ", i);
-        // console.log("16进制字符串 ", hexStr);
-        // console.log("随机值 ", normalized);
+        // console.log("Current ", i);
+        // console.log("Hexadecimal string ", hexStr);
+        // console.log("Random Value ", normalized);
         userInfo.roundNum = i + 1;
         userInfo.hexStr = hexStr;
         userInfo.boxNum = normalized;
@@ -930,11 +679,11 @@ async function main() {
     let result = [];
     let str = "${params.blockHash_1}" + "${params.blockHash}" + "${params.blockHash_2}" + "${params.blockHash_3}" + "${params.blockHash_4}";
     let base = await computeBaseHash(str);
-    console.log("得到的16进制字符串： ",base);
-    //用户自己的公钥
+    console.log("Hexadecimal string： ",base);
+    //user wallet address
     let userPublicKey = "${params.userWallet}";
     let basePublicKey = base + userPublicKey;
-    //生成自己的信息
+    //create self info
     let userInfoList = await creatSelfInfo(basePublicKey, ${params.round});
     console.log("userInfoList  ", userInfoList);
     result.push(userInfoList);
@@ -944,35 +693,33 @@ return await main();
 `;
     }
 
-    //重置默认代码
     function restCode() {
         const params = getUrlParams();
         setCodeAndInfo(params);
         codeEditor.value = defaultCode;
         initEmptyResult();
+        logs = "";
     }
 
-
-        //显示或隐藏代码面板
     function showCodeEditor() {
         codePanel.open = !codePanel.open;
         setBtnText();
     }
 
-    //修改按钮文本
     function setBtnText() {
         if (codePanel.open) {
-            showCodeEditorBtn.innerText = `▲ 收起`;
+            showCodeEditorBtn.innerText = `▲ Hide`;
         } else {
-            showCodeEditorBtn.innerText = `▼ 展开`;
+            showCodeEditorBtn.innerText = `▼ Show`;
         }
     }
 
-    // 用于存储捕获的日志
+    //Used to store captured logs.
     let capturedLogs = [];
 
-    // 运行按钮点击处理
+    //Run Button Click Handler
     async function onRunClick(e) {
+        logs = "";
         const params = getUrlParams();
         //
         let code = "";
@@ -992,7 +739,6 @@ return await main();
             obj.blockHash_4 = blockHashLast3Inp.value;
             obj.userWallet = userWalletInp.value;
             obj.round = 1;
-            // console.log("fffffff  ", obj);
             setCodeAndInfo(obj);
             code = defaultCode;
             codeEditor.value = code;
@@ -1003,24 +749,22 @@ return await main();
 
         let result = await anonymous_fun.run(code);
         if (!isCodePass) {
-            alert("js代码执行异常，请先处理异常，或重置代码");
+            alert("A JavaScript execution error occurred. Please resolve the error or reset the code.");
         } else {
             if (e !== undefined && e.type === 'click') {
                 for (let i = 0; i < result.length; i++) {
                     setUserRoundInfo(result[i]);
                 }
             }
-            // console.log("结果》》  ", result);
-            return result;
         }
     }
 
-    //更新用户每回合的结果
+    //Update the user's results for each round.
     function setUserRoundInfo(roundList) {
         let resultHtml = '';
         for (const round of roundList) {
             resultHtml += `
-                <div class="div-round">第 ${round.roundNum} 回合 · SHA256</div>
+                <div class="div-round">No.${round.roundNum} Round · SHA256</div>
                 <div class="round-hash-item">
                     <span>${round.hexStr}</span>
                     <span>${round.boxNum}</span>
@@ -1031,12 +775,12 @@ return await main();
         document.getElementById("resultRound").innerHTML = resultHtml;
     }
 
-    // 清空输出显示 (不清空捕获数组，每次运行会重置)
+    //Clear Output Display (Does not clear the capture array; resets upon each run)
     function clearOutputDisplay() {
         outputContentDiv.innerHTML = '';
     }
 
-    // 添加一条输出 (支持多种类型)
+    //Add an Output (Supports Multiple Types)
     function addOutput(message, type = 'log') {
         const line = document.createElement('div');
         line.style.marginBottom = '4px';
@@ -1057,7 +801,7 @@ return await main();
 
         const messageSpan = document.createElement('span');
         messageSpan.style.color = '#f8f8f2';
-        // 将对象/数组等转为可读字符串
+        // Convert objects, arrays, etc., into human-readable strings.
         let displayMsg;
         try {
             if (typeof message === 'object') {
@@ -1068,23 +812,25 @@ return await main();
         } catch(e) {
             displayMsg = String(message);
         }
+
+        logs += (displayMsg + "\n");
         messageSpan.textContent = displayMsg;
 
         line.appendChild(prefixSpan);
         line.appendChild(messageSpan);
         outputContentDiv.appendChild(line);
-        // 自动滚动到底部
         outputContentDiv.parentElement.parentElement.scrollTop = outputContentDiv.parentElement.parentElement.scrollHeight;
     }
 
-    // 清空输出 (仅清显示，不清console历史)
+    // Clear Output (Clears display only; does not clear console history)
     function clearOutput() {
         outputContentDiv.innerHTML = '';
-        addOutput('🧹 输出已清空，点击「运行代码」重新执行。', 'info');
+        addOutput('🧹 Output cleared. Click "Run Code" to execute again.', 'info');
+        logs = "";
     }
 
     const anonymous_fun = (function() {
-        // 保存原始的 console 方法
+        // Save the original console methods.
         const originalConsole = {
             log: console.log,
             error: console.error,
@@ -1092,13 +838,13 @@ return await main();
             info: console.info
         };
 
-        // 运行代码的核心函数
-        // 异步执行代码的核心函数
+        // The core function for running the code
+        // The Core Function for Asynchronous Code Execution
         async function runCodeAsync(code) {
-            // 1. 重置捕获日志数组
+            // 1. Reset capture log array
             capturedLogs = [];
 
-            // 2. 临时替换 console 方法
+            // 2. Temporarily Replace Console Methods
             console.log = (...args) => {
                 capturedLogs.push({ type: 'log', args });
                 originalConsole.log(...args);
@@ -1116,22 +862,22 @@ return await main();
                 originalConsole.info(...args);
             };
 
-            // 3. 清空输出显示区域 (UI)
+            // 3. Clear Output Display Area (UI)
             clearOutputDisplay();
 
             let executionError = null;
             let result = undefined;
             try {
-                // 包装成 async 函数执行
+                //Wrap and execute as an async function.
                 const asyncFunction = new Function(`
                     return (async function() {
                         ${code}
                     })();
                 `);
                 result = await asyncFunction();
-                // 如果有返回值且非 undefined，也打印到控制台
+                //If there is a return value and it is not `undefined`, print it to the console as well.
                 if (result !== undefined) {
-                    capturedLogs.push({ type: 'log', args: ['返回值 =>', result] });
+                    capturedLogs.push({ type: 'log', args: ['Result =>', result] });
                 }
                 isCodePass = true;
             } catch (err) {
@@ -1139,16 +885,16 @@ return await main();
                 executionError = err;
                 capturedLogs.push({ type: 'error', args: [err.message || err] });
             } finally {
-                // 6. 恢复原始 console
+                // 6. Restore Original Console
                 console.log = originalConsole.log;
                 console.error = originalConsole.error;
                 console.warn = originalConsole.warn;
                 console.info = originalConsole.info;
             }
 
-            // 7. 将所有捕获的日志渲染到输出区
+            // 7. Render all captured logs to the output area.
             for (const log of capturedLogs) {
-                // 合并参数为一个字符串（简单处理）
+                //Merge parameters into a single string (simple handling)
                 const message = log.args.map(arg => {
                     if (typeof arg === 'object') {
                         try {
@@ -1162,31 +908,48 @@ return await main();
                 addOutput(message, log.type);
             }
 
-            // 8. 如果执行错误，额外加提示
+            // 8.If an error occurs during execution, provide an additional prompt.
             if (executionError) {
-                addOutput(`执行异常: ${executionError.message}`, 'error');
+                addOutput(`Execution Exception: ${executionError.message}`, 'error');
             }
             return result;
         }
 
-        // // 运行按钮点击处理
-        // async function onRunClick() {
-        //     const code = codeEditor.value;
-        //     let result = await runCodeAsync(code);
-        //     if (!isCodePass) {
-        //         alert("js代码执行异常，请先处理异常，或重置代码");
-        //     }
-        //     console.log("结果》》  ", result)
-        // }
-        // runBtn.addEventListener('click', onRunClick);
-
-        // 返回需要暴露的函数，因为需要new Function中的结果来渲染界面，所以只能把运行代码的函数抛出给顶层使用
+        // Return the functions that need to be exposed. Since the result of `new Function` is required to render the interface,
+        // the function responsible for executing the code must be exposed to the top level for use.
         return {
             run: runCodeAsync
         };
     })();
 
     document.addEventListener('DOMContentLoaded', initPage);
+
+    // Quickly detect and display browser information.
+    function showCryptoStatus() {
+        const status = {
+            hasCrypto: !!window.crypto,
+            hasSubtle: !!(window.crypto && window.crypto.subtle),
+            hasDigest: !!(window.crypto && window.crypto.subtle && crypto.subtle.digest),
+            isSecureContext: window.isSecureContext || false,
+            userAgent: navigator.userAgent
+        };
+
+        console.log('Crypto status:', status);
+
+        if (!status.hasCrypto) {
+            console.log('❌ Not Support Crypto API');
+        } else if (!status.hasSubtle) {
+            console.log('⚠️ Supports basic crypto, but does not support Web Crypto API');
+            console.log('   Please upgrade your browser.: Chrome 37+, Firefox 34+, Safari 11+');
+        } else if (!status.isSecureContext) {
+            console.log('⚠️ Web Crypto API need HTTPS or localhost');
+            console.log('   Current Environment:', location.protocol);
+        } else {
+            console.log('✅ Support Web Crypto API');
+        }
+
+        return status;
+    }
 </script>
 </body>
 </html>
