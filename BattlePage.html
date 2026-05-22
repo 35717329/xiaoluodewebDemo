@@ -687,32 +687,38 @@ function bytesToHex(bytes) {
 //Normalization Function
 async function normalizeHash(decoded) {
     try {
-        const hashArray = Array.from(decoded);
-        let hashValue = 0n;
-        for (const byte of hashArray) {
-            hashValue = (hashValue << 8n) + BigInt(byte);
-        }
-        const maxValue = 1n << 256n;          // 2^256
-        // Use BigInt to calculate scaled values to avoid precision loss.
-        const scaledBigInt = (hashValue * 100000n) / maxValue;
-        return Number(scaledBigInt);
+        // Convert a byte array to an unsigned large integer.
+        // Convert a Uint8Array to a hexadecimal string, then to a BigInt.
+        const hexString = Array.from(decoded)
+            .map(b => b.toString(16).padStart(2, '0'))
+            .join('');
+        const hashValue = BigInt('0x' + hexString);
+
+        // Normalization, with a denominator of 2^256.
+        const maxValue = 2n ** 256n;
+
+        // Convert to a normalized decimal (between 0 and 1, exclusive of 1).
+        // Since BigInt division truncates, it is converted to a Number here.
+        const highBits = hashValue >> 200n;
+        const maxHighBits = maxValue >> 200n;
+        const normalizedValue = Number(highBits) / Number(maxHighBits);
+        return normalizedValue;
     } catch (e) {
-        console.error('NormalizeHash Fail: ', e);
         throw new Error("normalizeHash Fail:" + e.message);
     }
 }
-class UserInfo {
+class Result {
     roundNum = 0;
     hexStr = "";
-    boxNum = 0;
+    value = 0;
 }
 //Generate your own information based on a string and the round number.
-async function creatSelfInfo(str, roundNum) {
-    let info = [];
+async function generateResult(str, roundNum) {
+    let resultList = [];
     const encoder = new TextEncoder();
     let previousHex = str;
     for (let i = 0; i < roundNum; i++) {
-        let userInfo = new UserInfo();
+        let result = new Result();
         // Encode a hexadecimal string into UTF-8 bytes.
         const inputBytes = encoder.encode(previousHex);
         const hashBytes = await computeSha256(inputBytes);
@@ -721,18 +727,18 @@ async function creatSelfInfo(str, roundNum) {
         // console.log("Current ", i);
         // console.log("Hexadecimal string ", hexStr);
         // console.log("Random Value ", normalized);
-        userInfo.roundNum = i + 1;
-        userInfo.hexStr = hexStr;
-        userInfo.boxNum = normalized;
-        info.push(userInfo);
+        result.roundNum = i + 1;
+        result.hexStr = hexStr;
+        result.value = Math.trunc(normalized * 100000);
+        resultList.push(result);
         previousHex = hexStr;
     }
 
-    return info;
+    return resultList;
 }
 
 async function main() {
-    let result = [];
+    let resultList = [];
     for (var i = 0; i < ${params.userWallet.length}; i++) {
         var user = ${JSON.stringify(params.userWallet)}[i];
         let str = "${params.blockHash_1}" + "${params.blockHash}" + "${params.blockHash_2}" + "${params.blockHash_3}" + "${params.blockHash_4}";
@@ -741,12 +747,12 @@ async function main() {
         //user wallet
         let userPublicKey = ${JSON.stringify(params.userWallet)}[i];;
         let basePublicKey = base + userPublicKey;
-        //create self info
-        let userInfoList = await creatSelfInfo(basePublicKey, ${params.round});
+        //generate result
+        let userInfoList = await generateResult(basePublicKey, ${params.round});
         console.log("userInfoList  ", userInfoList);
-        result.push(userInfoList);
+        resultList.push(userInfoList);
     }
-    return result;
+    return resultList;
 }
 return await main();
 `;
@@ -877,7 +883,7 @@ return await main();
                         <div class="round-title">No.${round.roundNum} Round · SHA256</div>
                         <div class="round-hash">
                             <span>${round.hexStr}</span>
-                            <span>${round.boxNum}</span>
+                            <span>${round.value}</span>
                         </div>
                     </div>
                 `);

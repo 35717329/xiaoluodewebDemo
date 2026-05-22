@@ -69,6 +69,16 @@
             border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
+        .son-card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-sizing: border-box;
+            width: 100%;
+        }
+
         .two-card {
             display: grid;
             grid-template-rows: auto auto;      /* two rows */
@@ -77,7 +87,6 @@
         }
 
         /* The elements in the first and last rows span two columns. */
-        .two-card > :first-child,
         .two-card > :last-child {
             grid-column: 1 / -1;  /* Starting from the first column and ending at the last column. */
         }
@@ -97,7 +106,7 @@
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 16px;
-            align-items: end;
+            /*align-items: end;*/
             background-color: #0D1726;
             /*padding: 16px;*/
             border-radius: 12px;
@@ -114,6 +123,13 @@
             font-size: 14px;
             color: var(--muted);
             font-weight: 500;
+        }
+
+        .info-item > div {
+            display: flex;
+            flex-direction: row;
+            gap: 6px;
+            white-space: nowrap;
         }
 
         .info-value {
@@ -214,6 +230,54 @@
             to {
                 transform: rotate(360deg);
             }
+        }
+
+        .el-tooltip {
+            display: inline-block;
+            position: relative;
+            cursor: pointer;
+        }
+
+        /* 提示层 - 向上弹出 */
+        .el-tooltip .el-tooltip__popper {
+            position: absolute;
+            bottom: calc(100% + 8px);   /* 位于元素上方，间距8px */
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2000;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.3s cubic-bezier(0.23, 1, 0.32, 1), visibility 0.3s;
+            background-color: #303133;
+            color: #fff;
+            border-radius: 4px;
+            font-size: 12px;
+            line-height: 1.4;
+            padding: 8px 12px;
+            white-space: nowrap;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            pointer-events: none;
+            text-align: center;
+        }
+
+        /* 向下的小箭头 */
+        .el-tooltip .el-tooltip__popper::after {
+            content: '';
+            position: absolute;
+            top: 100%;              /* 箭头位于提示层底部外侧 */
+            left: 50%;
+            margin-left: -5px;
+            width: 0;
+            height: 0;
+            border-width: 5px 5px 0 5px;
+            border-style: solid;
+            border-color: #303133 transparent transparent transparent;
+        }
+
+        /* 悬停显示 */
+        .el-tooltip:hover .el-tooltip__popper {
+            visibility: visible;
+            opacity: 1;
         }
 
         details {
@@ -327,6 +391,15 @@
             z-index: 1000;
         }
 
+        #boxSortDiv,
+        #colorSortDiv {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, 10px);
+            max-width: 100%;
+            box-sizing: border-box;
+            align-items: center;
+        }
+
         @media (max-width: 640px) {
             .container {
                 padding: 16px;
@@ -353,6 +426,9 @@
             .round-hash-item-son span:nth-child(2) {
                 margin-right: auto;
             }
+            .round-hash-item span {
+                white-space: normal;
+            }
 
             .round-hash-item .hash-number {
                 color: #35DDDD;
@@ -361,7 +437,7 @@
             }
 
             .two-card {
-                grid-template-columns: 1fr;
+                display: block;
             }
 
             .toolbar {
@@ -408,29 +484,7 @@
     </div>
 
     <div class="card two-card">
-        <div class="card">
-            <div class="game-info-grid">
-                <div class="info-item">
-                    <label>Color Sort</label>
-                    <div class="info-value">
-                        <input id="colorSortInp" value="">
-                    </div>
-                </div>
-                <div class="info-item">
-                    <label>Box Sort</label>
-                    <div class="info-value">
-                        <input id="boxSortInp" value="">
-                    </div>
-                </div>
-                <div class="info-item">
-                    <label>Config Number</label>
-                    <div class="info-value">
-                        <input id="cfgNumInp" type="number" min="1" max="2" value="">
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="card">
+        <div class="son-card">
             <div class="game-info-grid">
                 <h4>Current Round</h4>
             </div>
@@ -486,7 +540,7 @@
                 </div>
             </div>
         </div>
-        <div class="card" id="lastRoundDiv">
+        <div class="son-card" id="lastRoundDiv">
             <div class="game-info-grid">
                 <h4>Previous Round</h4>
             </div>
@@ -544,7 +598,31 @@
         </div>
 
 
-        <div class="card">
+        <div class="son-card">
+            <div class="game-info-grid">
+                <div class="info-item">
+                    <label>Color Sort</label>
+                    <div class="info-value">
+                        <input id="colorSortInp" value="">
+                    </div>
+                    <div id="colorSortDiv">
+                    </div>
+                </div>
+                <div class="info-item">
+                    <label>Box Sort</label>
+                    <div class="info-value">
+                        <input id="boxSortInp" value="">
+                    </div>
+                    <div id="boxSortDiv">
+                    </div>
+                </div>
+                <div class="info-item">
+                    <label>Config Number</label>
+                    <div class="info-value">
+                        <input id="cfgNumInp" type="number" min="1" max="2" value="">
+                    </div>
+                </div>
+            </div>
             <div class="card-header">
                 <h5>The following values are the results obtained after running the code through the "Online JS Code Editor."</h5>
             </div>
@@ -645,6 +723,8 @@
     const codePanel = document.getElementById("codePanel");
 
     const lastRoundDiv = document.getElementById("lastRoundDiv");
+    const colorSortDiv = document.getElementById("colorSortDiv");
+    const boxSortDiv = document.getElementById("boxSortDiv");
 
     const colorSortInp = document.getElementById("colorSortInp");
     const boxSortInp = document.getElementById("boxSortInp");
@@ -736,6 +816,50 @@
         }
     }
 
+    function getColor(index) {
+        let color = "#ffffff";
+        switch (index) {
+            case 1:
+                color = "#f8da0f";
+                break;
+            case 2:
+                color = "#d22f2c";
+                break;
+            case 3:
+                color = "#952dc9";
+                break;
+            case 4:
+                color = "#074aea";
+                break;
+            default:
+                break
+        }
+        return color;
+    }
+
+    function updateBoxAndColorSort() {
+        let boxStr = "";
+        let colorStr = "";
+        for (let i = 0; i < data.boxStr.length; i++) {
+            let type = data.boxStr[i];
+            boxStr += `<div class="el-tooltip" style="width: 10px; height: 10px; background-color: ` + getColor(parseInt(type)) + `">
+                <div class="el-tooltip__popper">
+                    Sort ${i + 1}
+                </div>
+            </div>`;
+        }
+        for (let i = 0; i < data.oriColorStr.length; i++) {
+            let type = data.oriColorStr[i];
+            colorStr += `<div class="el-tooltip" style="width: 10px; height: 10px; background-color: ` + getColor(parseInt(type)) + `">
+                <div class="el-tooltip__popper">
+                    Sort ${i + 1}
+                </div>
+            </div>`;
+        }
+        colorSortDiv.innerHTML = colorStr;
+        boxSortDiv.innerHTML = boxStr;
+    }
+
     function updateView() {
         colorSortInp.value = data.oriColorStr;
         boxSortInp.value = data.boxStr;
@@ -786,6 +910,7 @@
         data.oriColorStr = params.oriColorStr;
         data.cfgNum = params.cfgNum;
         data.boxStr = params.boxStr;
+        updateBoxAndColorSort();
         judgeLast();
         if (!data.isHasLast) {
             lastRoundDiv.style.display = "none";
@@ -1029,14 +1154,14 @@ async function main() {
     console.log("Final Color Block Arrangement ", orderColorStr);
 
     let fourHalf = hashValue.substring(43, 64);
-    let boxIndex = getIndexByHashStr(fourHalf);
+    let boxIndex = getIndexByHashStr(fourHalf) + 1;
     console.log("Box order " + boxIndex);
     console.log("Box type " + boxStr.charAt(boxIndex));
     result.boxIndex = boxIndex;
 
 
     let thirdHalf = hashValue.substring(22, 43);
-    let colorIndex = getIndexByHashStr(thirdHalf);
+    let colorIndex = getIndexByHashStr(thirdHalf) + 1;
     console.log("Color order " + colorIndex);
     console.log("Color type " + orderColorStr.charAt(colorIndex));
     result.colorIndex = colorIndex;
@@ -1121,23 +1246,37 @@ return await main();
     function setUserRoundInfo(result) {
         data.currHash = result.currHash;
         data.lastHash = result.lastHash;
+
+        let currentSort = "";
+        for (let i = 0; i < result.colorSortStr.length; i++) {
+            let type = result.colorSortStr[i];
+            currentSort += `<div class="el-tooltip" style="width: 10px; height: 10px; background-color: ` + getColor(parseInt(type)) + `">
+                <div class="el-tooltip__popper">
+                    Sort ${i + 1}
+                </div>
+            </div>`;
+        }
+
         let resultHtml = `
                 <div class="info-item">
                     <label>Current Round Color Order</label>
                     <div class="round-hash-item">
                         <span>${result.colorSortStr}</span>
                     </div>
+                    <div id="colorSortDiv">`
+                        + currentSort +
+                    `</div>
+                </div>
+                  <div class="info-item">
+                    <label>The n-th color of the current draw</label>
+                    <div class="round-hash-item">
+                        <span>${result.colorIndex}</span>
+                    </div>
                 </div>
                 <div class="info-item">
                     <label>The n-th box of the current round</label>
                     <div class="round-hash-item">
                         <span>${result.boxIndex}</span>
-                    </div>
-                </div>
-                <div class="info-item">
-                    <label>The n-th color of the current draw</label>
-                    <div class="round-hash-item">
-                        <span>${result.colorIndex}</span>
                     </div>
                 </div>
             `;

@@ -154,6 +154,7 @@
             margin-bottom: 4px;
             font-size: 14px;
             color: var(--muted);
+            justify-self: center;
         }
 
         .round-hash-item {
@@ -393,10 +394,9 @@
         </div>
         <div class="result-info">
             <div class="result-info-card">
-                <div class="result-info-card-item">
-                    <div>
-                        <span style="font-size: 14px; color: #3B5580;">Hash Value (Hex)</span>
-                    </div>
+                <div class="result-info-card-item" style="display: flex; justify-content: space-between;">
+                    <span style="font-size: 14px; color: #3B5580;">Hash Value (Hex)</span>
+                    <span style="font-size: 14px; color: #3B5580;">Number</span>
                 </div>
                 <div class="result-info-card-item" id="resultRound">
                 </div>
@@ -502,9 +502,7 @@
             alert("A JavaScript execution error occurred. Please resolve the error or reset the code.");
             return;
         }
-        for (let i = 0; i < userRoundList.length; i++) {
-            setUserRoundInfo(userRoundList[i]);
-        }
+        setUserRoundInfo(userRoundList);
     }
 
     /**
@@ -567,8 +565,9 @@ async function normalizeHash(decoded) {
 
         // Convert to a normalized decimal (between 0 and 1, exclusive of 1).
         // Since BigInt division truncates, it is converted to a Number here.
-        const normalizedValue = Number(hashValue) / Number(maxValue);
-
+        const highBits = hashValue >> 200n;
+        const maxHighBits = maxValue >> 200n;
+        const normalizedValue = Number(highBits) / Number(maxHighBits);
         return normalizedValue;
     } catch (e) {
         throw new Error("normalizeHash Fail:" + e.message);
@@ -576,63 +575,47 @@ async function normalizeHash(decoded) {
 }
 
 //Transform the normalized values.
-function covertNum(num) {
+function calculateMultiple(num) {
     let floorMultiplier = ${params.ratio} / (1.0 - num);
     if (floorMultiplier < 100) {
         floorMultiplier = 100;
     }
-    floorMultiplier = parseInt(floorMultiplier);
+    floorMultiplier = Math.trunc(floorMultiplier);
     return floorMultiplier / 100;
 }
 
-class UserInfo {
+class Result {
     roundNum = 0;
     hexStr = "";
-    boxNum = 0;
+    multiple = 0;
 }
 //Generate your own information based on a string and the round number.
-async function creatSelfInfo(str, roundNum) {
-    let info = [];
-    const encoder = new TextEncoder();
-    let previousHex = str;
+async function generateResult(strHex, roundNum) {
+    let resultList = [];
+    let currentHex = strHex;
 
+    for (let i = 0; i < roundNum; i++) {
+        let result = new Result();
+        const bytes = hexToBytes(currentHex);
+        let normalized = await normalizeHash(bytes);
+        normalized = calculateMultiple(normalized);
 
-    let firstBytes = hexToBytes(str);
-    let firstBoxNum = await normalizeHash(firstBytes);
-    firstBoxNum = covertNum(firstBoxNum);
-    let firstRound = new UserInfo();
-    firstRound.roundNum = 1;
-    firstRound.hexStr = str;
-    firstRound.boxNum = firstBoxNum;
-    info.push(firstRound);
+        result.roundNum = i + 1;
+        result.hexStr = currentHex;
+        result.multiple = normalized;
+        resultList.push(result);
 
-    for (let i = 1; i < roundNum; i++) {
-        let userInfo = new UserInfo();
-        // Encode a hexadecimal string into UTF-8 bytes.
-        const inputBytes = encoder.encode(previousHex);
-        const hashBytes = await computeSha256(inputBytes);
-        const hexStr = bytesToHex(hashBytes);
-        let normalized = await normalizeHash(hashBytes);
-        normalized = covertNum(normalized);
-        // console.log("Current ", i);
-        // console.log("Hexadecimal string ", hexStr);
-        // console.log("Random Value ", normalized);
-        userInfo.roundNum = i + 1;
-        userInfo.hexStr = hexStr;
-        userInfo.boxNum = normalized;
-        info.push(userInfo);
-        previousHex = hexStr;
+        //Calculate the input for the next round: the SHA-256 hash of the current hexadecimal string.
+        const nextBytes = await computeSha256(encoder.encode(currentHex));
+        currentHex = bytesToHex(nextBytes);
     }
-
-    return info;
+    return resultList;
 }
 
 async function main() {
-    let result = [];
-    //create slef info
-    let userInfoList = await creatSelfInfo("${params.blockHash}", ${params.round});
-    console.log("userInfoList  ", userInfoList);
-    result.push(userInfoList);
+    //generate result
+    let result = await generateResult("${params.blockHash}", ${params.round});
+    console.log("result  ", result);
     return result;
 }
 return await main();
@@ -695,9 +678,8 @@ return await main();
             alert("A JavaScript execution error occurred. Please resolve the error or reset the code.");
         } else {
             if (e !== undefined && e.type === 'click') {
-                for (let i = 0; i < result.length; i++) {
-                    setUserRoundInfo(result[i]);
-                }
+                setUserRoundInfo(result);
+
             }
         }
     }
@@ -710,7 +692,7 @@ return await main();
                 <div class="div-round">No.${round.roundNum} Round · SHA256</div>
                 <div class="round-hash-item">
                     <span>${round.hexStr}</span>
-                    <span>${round.boxNum}x</span>
+                    <span>${round.multiple}x</span>
                 </div>
             `;
         }

@@ -638,25 +638,25 @@ async function normalizeHash(decoded) {
         }
         const maxValue = 1n << 256n;          // 2^256
         // Use BigInt to calculate scaled values to avoid precision loss.
-        const scaledBigInt = (hashValue * 100000n) / maxValue;
-        return Number(scaledBigInt);
+        const scaledNumber = Number(hashValue) / Number(maxValue);
+        return scaledNumber;
     } catch (e) {
         console.error('NormalizeHash Fail: ', e);
         throw new Error("normalizeHash Fail:" + e.message);
     }
 }
-class UserInfo {
+class Result {
     roundNum = 0;
     hexStr = "";
-    boxNum = 0;
+    value = 0;
 }
 //Generate your own information based on a string and the round number.
-async function creatSelfInfo(str, roundNum) {
-    let info = [];
+async function generateResult(str, roundNum) {
+    let resultList = [];
     const encoder = new TextEncoder();
     let previousHex = str;
     for (let i = 0; i < roundNum; i++) {
-        let userInfo = new UserInfo();
+        let result = new Result();
         // Encode a hexadecimal string into UTF-8 bytes.
         const inputBytes = encoder.encode(previousHex);
         const hashBytes = await computeSha256(inputBytes);
@@ -665,29 +665,29 @@ async function creatSelfInfo(str, roundNum) {
         // console.log("Current ", i);
         // console.log("Hexadecimal string ", hexStr);
         // console.log("Random Value ", normalized);
-        userInfo.roundNum = i + 1;
-        userInfo.hexStr = hexStr;
-        userInfo.boxNum = normalized;
-        info.push(userInfo);
+        result.roundNum = i + 1;
+        result.hexStr = hexStr;
+        result.value = parseInt(normalized * 100000);
+        resultList.push(result);
         previousHex = hexStr;
     }
 
-    return info;
+    return resultList;
 }
 
 async function main() {
-    let result = [];
+    let resultList = [];
     let str = "${params.blockHash_1}" + "${params.blockHash}" + "${params.blockHash_2}" + "${params.blockHash_3}" + "${params.blockHash_4}";
     let base = await computeBaseHash(str);
     console.log("Hexadecimal string： ",base);
     //user wallet address
     let userPublicKey = "${params.userWallet}";
     let basePublicKey = base + userPublicKey;
-    //create self info
-    let userInfoList = await creatSelfInfo(basePublicKey, ${params.round});
-    console.log("userInfoList  ", userInfoList);
-    result.push(userInfoList);
-    return result;
+    //generate result
+    let result = await generateResult(basePublicKey, ${params.round});
+    console.log("result  ", result);
+    resultList.push(result);
+    return resultList;
 }
 return await main();
 `;
@@ -767,7 +767,7 @@ return await main();
                 <div class="div-round">No.${round.roundNum} Round · SHA256</div>
                 <div class="round-hash-item">
                     <span>${round.hexStr}</span>
-                    <span>${round.boxNum}</span>
+                    <span>${round.value}</span>
                 </div>
             `;
         }
