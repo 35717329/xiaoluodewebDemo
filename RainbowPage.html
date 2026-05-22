@@ -129,7 +129,7 @@
             display: flex;
             flex-direction: row;
             gap: 6px;
-            white-space: nowrap;
+            /*white-space: nowrap;*/
         }
 
         .info-value {
@@ -176,6 +176,11 @@
             display: inline-block;
             margin-bottom: 4px;
             color: var(--muted);
+        }
+        .result-color {
+            display: grid;
+            align-items: center;
+            grid-template-columns: 1fr;
         }
 
         .round-hash-item {
@@ -1257,6 +1262,8 @@ return await main();
             </div>`;
         }
 
+        let boxType = getColor(parseInt(data.boxStr.charAt(result.boxIndex + 1)));
+        let colorType = getColor(parseInt(result.colorSortStr.charAt(result.colorIndex + 1)));
         let resultHtml = `
                 <div class="info-item">
                     <label>Current Round Color Order</label>
@@ -1272,11 +1279,19 @@ return await main();
                     <div class="round-hash-item">
                         <span>${result.colorIndex}</span>
                     </div>
+                    <div class="result-color">
+                        <label>The type corresponding to the current color sort is</label>
+                        <div style="width: 10px; height: 10px; background-color: ` + colorType + `;"></div>
+                    </div>
                 </div>
                 <div class="info-item">
                     <label>The n-th box of the current round</label>
                     <div class="round-hash-item">
                         <span>${result.boxIndex}</span>
+                    </div>
+                    <div class="result-color">
+                        <label>The type corresponding to the current box sort is</label>
+                        <div style="width: 10px; height: 10px; background-color: ` + boxType + `;"></div>
                     </div>
                 </div>
             `;
