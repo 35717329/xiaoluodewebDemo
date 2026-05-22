@@ -593,7 +593,7 @@ class Result {
 async function generateResult(strHex, roundNum) {
     let resultList = [];
     let currentHex = strHex;
-
+    const encoder = new TextEncoder();
     for (let i = 0; i < roundNum; i++) {
         let result = new Result();
         const bytes = hexToBytes(currentHex);
