@@ -1159,14 +1159,14 @@ async function main() {
     console.log("Final Color Block Arrangement ", orderColorStr);
 
     let fourHalf = hashValue.substring(43, 64);
-    let boxIndex = getIndexByHashStr(fourHalf) + 1;
+    let boxIndex = getIndexByHashStr(fourHalf);
     console.log("Box order " + boxIndex);
     console.log("Box type " + boxStr.charAt(boxIndex));
     result.boxIndex = boxIndex;
 
 
     let thirdHalf = hashValue.substring(22, 43);
-    let colorIndex = getIndexByHashStr(thirdHalf) + 1;
+    let colorIndex = getIndexByHashStr(thirdHalf);
     console.log("Color order " + colorIndex);
     console.log("Color type " + orderColorStr.charAt(colorIndex));
     result.colorIndex = colorIndex;
@@ -1262,8 +1262,8 @@ return await main();
             </div>`;
         }
 
-        let boxType = getColor(parseInt(data.boxStr.charAt(result.boxIndex + 1)));
-        let colorType = getColor(parseInt(result.colorSortStr.charAt(result.colorIndex + 1)));
+        let boxType = getColor(parseInt(data.boxStr.charAt(result.boxIndex)));
+        let colorType = getColor(parseInt(result.colorSortStr.charAt(result.colorIndex)));
         let resultHtml = `
                 <div class="info-item">
                     <label>Current Round Color Order</label>
@@ -1277,7 +1277,7 @@ return await main();
                   <div class="info-item">
                     <label>The n-th color of the current draw</label>
                     <div class="round-hash-item">
-                        <span>${result.colorIndex}</span>
+                        <span>${result.colorIndex + 1}</span>
                     </div>
                     <div class="result-color">
                         <label>The type corresponding to the current color sort is</label>
@@ -1287,7 +1287,7 @@ return await main();
                 <div class="info-item">
                     <label>The n-th box of the current round</label>
                     <div class="round-hash-item">
-                        <span>${result.boxIndex}</span>
+                        <span>${result.boxIndex + 1}</span>
                     </div>
                     <div class="result-color">
                         <label>The type corresponding to the current box sort is</label>
