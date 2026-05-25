@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -53,7 +53,7 @@
         .header h1 {
             font-size: 28px;
             margin-bottom: 8px;
-            background: linear-gradient(90deg, var(--accent), var(--accent-dark));
+            background: linear-gradient(120deg, #fff, #a5f3fc);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -386,6 +386,56 @@
             z-index: 1000;
         }
 
+        .dropdown {
+            position: fixed;
+            top: 32px;
+            right: 24px;
+        }
+
+        .dropdown-btn {
+            background: #2f2f4e;
+            border: none;
+            color: #ffffff;
+            border-radius: 40px;
+            padding: 8px 20px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: calc(100% + 6px);
+            right: 0;
+            min-width: 100px;
+            background: #2f2f4e;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+            padding: 6px 0;
+            list-style: none;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s, visibility 0.2s;
+            z-index: 1000;
+        }
+
+        .dropdown.open .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .dropdown-menu li {
+            padding: 8px 18px;
+            font-size: 14px;
+            color: #ffffff;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
         @media (max-width: 640px) {
             .container {
                 padding: 16px;
@@ -416,6 +466,12 @@
             .toolbar {
                 flex-wrap: wrap;
             }
+
+            .dropdown {
+                position: fixed;
+                top: 0;
+                right: 0;
+            }
         }
 
         .card-header {
@@ -425,33 +481,149 @@
             position: relative;
         }
     </style>
+    <script>
+        const translations = {
+            zh_cn: {
+                str_title: "Hash 驗證器",
+                str_language: "語言",
+                str_runBtn: "&#9654; 運行",
+                str_clearBtn: "🗑 清除",
+                str_restBtn: "&#8635; 重置",
+                str_showBtn: "▼ 展開",
+                str_hideBtn: "▲ 收起",
+                str_copyBtn: "複製代碼",
+                str_codeEd: "JS代碼在線編輯",
+                str_codeEdInp: "編輯JS代碼",
+                str_clearLogInp: "📋 日誌輸出",
+                str_clearLog2Inp: "✨ 點擊 \"運行\" 查看結果。",
+                str_H_1: "前一個BlockHash（H-1）",
+                str_H0: "當前BlockHash（H0）",
+                str_H1: "下一個BlockHash（H1）",
+                str_H2: "下一個BlockHash（H2）",
+                str_H3: "下一個BlockHash（H3）",
+                str_player: "玩家數量",
+                str_round: "回合",
+                str_wallet: "錢包地址",
+                str_viewSolana: "在Solana中查看 →",
+                str_remark: "以下數據根據\"JS代碼在線編輯\"執行後得到的結果",
+                str_hashValueSp: "Hash值（Hex）",
+                str_hashValueSp2: "範圍（0-99999）",
+                str_errorStr1: "當前環境不支持 SHA-256 函數",
+                str_errorStr2: "JavaScript代碼執行异常，請先解决錯誤或重置代碼",
+                str_content1: "點擊\"運行\"按鈕，開始校驗",
+                str_preCont1: "第",
+                str_preCont2: "回合 · SHA256",
+            },
+            en: {
+                str_title: "Hash Validator",
+                str_language: "language",
+                str_runBtn: "&#9654; Run",
+                str_clearBtn: "🗑 Clear",
+                str_restBtn: "&#8635; Rest",
+                str_showBtn: "▼ Show",
+                str_hideBtn: "▲ hide",
+                str_copyBtn: "Copy Code",
+                str_codeEd: "Online JS Code Editor",
+                str_codeEdInp: "Write your JavaScript code here...",
+                str_clearLogInp: "📋 Logs Print",
+                str_clearLog2Inp: "✨ Click \"Run\" to view the result.",
+                str_H_1: "Previous BlockHash（H-1）",
+                str_H0: "Current BlockHash（H0）",
+                str_H1: "Next BlockHash（H1）",
+                str_H2: "Next BlockHash（H2）",
+                str_H3: "Next BlockHash（H3）",
+                str_player: "Player Number",
+                str_round: "Round",
+                str_wallet: "Wallet Address",
+                str_viewSolana: "View on Solana →",
+                str_remark: "The following values are the results obtained after running the code through the \"Online JS Code Editor.\"",
+                str_hashValueSp: "Hash Value (Hex)",
+                str_hashValueSp2: "Interval Value (0-99999)",
+                str_errorStr1: "The current environment does not support SHA-256 function computation",
+                str_errorStr2: "A JavaScript execution error occurred. Please resolve the error or reset the code",
+                str_content1: "Click the \"Run\" button to start verification.",
+                str_preCont1: "No.",
+                str_preCont2: "Round · SHA256",
+            }
+        };
+
+        let currentLang = "en";
+
+        function getLangFromURL() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get("language");
+        }
+
+        function updateURLLang(language) {
+            const url = new URL(window.location.href);
+            url.searchParams.set("language", language);
+            window.history.pushState({}, '', url);
+        }
+
+        function initLanguage() {
+            let language = getLangFromURL() || "en";
+            if (!translations[language]) {
+                language = "en";
+            }
+            currentLang = language;
+            document.documentElement.setAttribute("language", currentLang);
+            updateURLLang(currentLang);
+        }
+
+        function applyTranslations() {
+            document.querySelectorAll("[data-i18n]").forEach(el => {
+                const key = el.getAttribute("data-i18n");
+                if (translations[currentLang] && translations[currentLang][key] !== undefined) {
+                    // input placeholder
+                    if (el.placeholder !== undefined && el.getAttribute("data-i18n-placeholder") === "true") {
+                        el.placeholder = translations[currentLang][key];
+                    } else {
+                        el.innerHTML = translations[currentLang][key];
+                    }
+                }
+            });
+        }
+
+        function getTranslationsText(key) {
+            return translations[currentLang][key];
+        }
+    </script>
 </head>
 <body>
 <div id="toast" class="toast"></div>
+<div class="dropdown" id="dropdown">
+    <button class="dropdown-btn" id="dropdownBtn">
+        <span data-i18n="str_language">language</span>
+    </button>
+    <ul class="dropdown-menu">
+        <li data-value="en">English</li>
+        <li data-value="zh_cn">中文繁体</li>
+    </ul>
+</div>
 <div class="container">
     <div class="header">
-        <h1>Hash Validator</h1>
+        <h1 data-i18n="str_title">Hash Validator</h1>
     </div>
 
     <div class="card">
         <div class="toolbar">
-            <button id="runBtn">&#9654; Run</button>
-            <button id="clearOutputBtn" class="clear-btn">🗑 Clear</button>
-            <button id="restCodeBtn" class="rest-btn">&#8635; Rest</button>
-            <button id="showCodeEditorBtn" class="rest-btn">▼ Show</button>
-            <button id="copyCodeBtn" class="rest-btn">Copy Code</button>
+            <button id="runBtn" data-i18n="str_runBtn">&#9654; Run</button>
+            <button id="clearOutputBtn" class="clear-btn" data-i18n="str_clearBtn">🗑 Clear</button>
+            <button id="restCodeBtn" class="rest-btn" data-i18n="str_restBtn">&#8635; Rest</button>
+            <button id="showCodeEditorBtn" class="rest-btn" data-i18n="str_showBtn">▼ Show</button>
+            <button id="copyCodeBtn" class="rest-btn" data-i18n="str_copyBtn">Copy Code</button>
         </div>
         <details id="codePanel">
-            <summary>Online JS Code Editor</summary>
+            <summary data-i18n="str_codeEd">Online JS Code Editor</summary>
             <div class="div-code-textarea">
-                <textarea id="codeEditor" class="code-textarea" placeholder="Write your JavaScript code here...">
+                <textarea id="codeEditor" class="code-textarea" data-i18n="str_codeEdInp" placeholder="Write your JavaScript code here...">
                 </textarea>
             </div>
             <div class="output-area">
                 <div class="output-title">
-                    <span>📋 Logs Print</span>
+                    <span data-i18n="str_clearLogInp">📋 Logs Print</span>
                 </div>
-                <div id="outputContent" class="output-content">✨ Click "Run" to view the result.</div>
+                <div id="outputContent" class="output-content" data-i18n="str_clearLog2Inp">✨ Click "Run" to view the result.</div>
             </div>
         </details>
     </div>
@@ -459,7 +631,7 @@
     <div class="card">
         <div class="game-info-grid">
             <div class="info-item">
-                <label>Previous BlockHash（H-1）</label>
+                <label data-i18n="str_H_1">Previous BlockHash（H-1）</label>
                 <div class="info-value">
                     <input id="blockHashAfterInp" value="">
                 </div>
@@ -467,7 +639,7 @@
         </div>
         <div class="game-info-grid">
             <div class="info-item">
-                <label>Current BlockHash（H0）</label>
+                <label data-i18n="str_H0">Current BlockHash（H0）</label>
                 <div class="info-value">
                     <input id="blockHashInp" value="">
                 </div>
@@ -475,7 +647,7 @@
         </div>
         <div class="game-info-grid">
             <div class="info-item">
-                <label>Next BlockHash（H1）</label>
+                <label data-i18n="str_H1">Next BlockHash（H1）</label>
                 <div class="info-value">
                     <input id="blockHashLast1Inp" value="">
                 </div>
@@ -483,7 +655,7 @@
         </div>
         <div class="game-info-grid">
             <div class="info-item">
-                <label>Next BlockHash（H2）</label>
+                <label data-i18n="str_H2">Next BlockHash（H2）</label>
                 <div class="info-value">
                     <input id="blockHashLast2Inp" value="">
                 </div>
@@ -491,7 +663,7 @@
         </div>
         <div class="game-info-grid">
             <div class="info-item">
-                <label>Next BlockHash（H3）</label>
+                <label data-i18n="str_H3">Next BlockHash（H3）</label>
                 <div class="info-value">
                     <input id="blockHashLast3Inp" value="">
                 </div>
@@ -499,13 +671,13 @@
         </div>
         <div class="game-info-grid">
             <div class="info-item">
-                <label>Player Number</label>
+                <label data-i18n="str_player">Player Number</label>
                 <div class="info-value">
                     <input type="number" id="joinNum" min="2" max="3" value="2">
                 </div>
             </div>
             <div class="info-item">
-                <label>Round</label>
+                <label data-i18n="str_round">Round</label>
                 <div class="info-value">
                     <input type="number" id="round" min="0" max="100" value="0">
                 </div>
@@ -513,7 +685,7 @@
         </div>
 
         <div class="card-header">
-            <h5>The following values are the results obtained after running the code through the "Online JS Code Editor."</h5>
+            <h5 data-i18n="str_remark">The following values are the results obtained after running the code through the "Online JS Code Editor."</h5>
         </div>
 
         <div id="playersContainer" class="players-results"></div>
@@ -543,6 +715,8 @@
     const joinNumInput = document.getElementById('joinNum');
     const roundInput = document.getElementById('round');
     const copyCodeBtn = document.getElementById('copyCodeBtn');
+    const dropdown = document.getElementById("dropdown");
+    const dropdownBtn = document.getElementById('dropdownBtn');
 
     // bind event
     runBtn.addEventListener('click', onRunClick);
@@ -566,6 +740,32 @@
         if (this.validity.rangeOverflow) {
             this.value = this.max;
         }
+    });
+
+    dropdownBtn.addEventListener('click', toggleMenu);
+    function toggleMenu(e) {
+        e.stopPropagation();
+        dropdown.classList.toggle('open');
+    }
+
+    function closeMenu() {
+        dropdown.classList.remove('open');
+    }
+
+    //
+    document.addEventListener('click', (e) => {
+        //close setting language
+        if (!dropdown.contains(e.target)) closeMenu();
+    });
+
+    document.querySelectorAll('.dropdown-menu li').forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const language = item.getAttribute('data-value');
+            closeMenu();
+            switchLanguage(language);
+            window.location.reload();
+        });
     });
 
     //toast
@@ -759,9 +959,11 @@ return await main();
     }
 
     async function initPage() {
+        initLanguage();
+        applyTranslations();
         let isSupport = showCryptoStatus();
         if (!isSupport) {
-            alert("The current environment does not support SHA-256 function computation.");
+            alert(`${getTranslationsText('str_errorStr1')}`);
             return;
         }
         const params = getUrlParams();
@@ -770,7 +972,7 @@ return await main();
 
         let userRoundList = await anonymous_fun.run(defaultCode);
         if (!isCodePass) {
-            alert("A JavaScript execution error occurred. Please resolve the error or reset the code.");
+            alert(`${getTranslationsText('str_errorStr2')}`);
             return;
         }
 
@@ -836,23 +1038,23 @@ return await main();
 
                         <div class="player-detail">
                             <div class="detail-label">
-                                <span>Wallet Address</span>
+                                <span>${getTranslationsText('str_wallet')}</span>
                                 <div class="signature-info">
-                                    <a href="https://solscan.io/account/${wallet}" target="_blank">View on Solana →</a>
+                                    <a href="https://solscan.io/account/${wallet}" target="_blank">${getTranslationsText('str_viewSolana')}</a>
                                 </div>
                             </div>
                             <div class="detail-value">
-                                <input id="userWallet_${i-1}" value="${wallet}" placeholder="Wallet Address">
+                                <input id="userWallet_${i-1}" value="${wallet}" placeholder="` + getTranslationsText('str_viewSolana') + `">
                             </div>
                         </div>
                     </div>
                     <div class="rounds-container">
                         <div class="rounds-header">
-                            <span>Hash Value (Hex)</span>
-                            <span>Interval Value (0-99999)</span>
+                            <span>${getTranslationsText('str_hashValueSp')}</span>
+                            <span>${getTranslationsText('str_hashValueSp2')}</span>
                         </div>
                         <div id="resultRound_${i-1}" class="empty-rounds">
-                            Click the "Run" button to start verification.
+                            ${getTranslationsText('str_content1')}
                         </div>
                     </div>
                 </div>
@@ -869,7 +1071,7 @@ return await main();
         for (let i = 0; i < userNum; i++) {
             const el = document.getElementById(`resultRound_${i}`);
             if (el) {
-                el.innerHTML = `<div class="empty-rounds">Click the "Run" button to start verification.</div>`;
+                el.innerHTML = `<div class="empty-rounds">${getTranslationsText('str_content1')}</div>`;
             }
         }
     }
@@ -880,7 +1082,7 @@ return await main();
         for (const round of roundList) {
             roundsHtml.push(`
                     <div class="round-item">
-                        <div class="round-title">No.${round.roundNum} Round · SHA256</div>
+                        <div class="round-title">${getTranslationsText('str_preCont1')}${round.roundNum} ${getTranslationsText('str_preCont2')}</div>
                         <div class="round-hash">
                             <span>${round.hexStr}</span>
                             <span>${round.value}</span>
@@ -909,9 +1111,9 @@ return await main();
 
     function setBtnText() {
         if (codePanel.open) {
-            showCodeEditorBtn.innerText = `▲ Hide`;
+            showCodeEditorBtn.innerText = `${getTranslationsText('str_hideBtn')}`;
         } else {
-            showCodeEditorBtn.innerText = `▼ Show`;
+            showCodeEditorBtn.innerText = `${getTranslationsText('str_copyBtn')}`;
         }
     }
 
@@ -957,7 +1159,7 @@ return await main();
 
         let result = await anonymous_fun.run(code);
         if (!isCodePass) {
-            alert("A JavaScript execution error occurred. Please resolve the error or reset the code.");
+            alert(`${getTranslationsText('str_errorStr2')}`);
         } else {
             if (e !== undefined && e.type === 'click') {
                 for (let i = 0; i < userNum; i++) {
