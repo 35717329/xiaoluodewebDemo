@@ -86,21 +86,21 @@
 
         .game-info-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            /*grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));*/
             gap: 16px;
             align-items: end;
             background-color: #0d1726;
-            /*
-            padding: 16px;
-            */
+            padding: 8px 0;
             border-radius: 12px;
             margin-bottom: 8px;
         }
 
         .info-item {
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
+            flex-wrap: wrap;
             gap: 6px;
+            align-items: center;
         }
 
         .info-item label {
@@ -108,6 +108,20 @@
             color: var(--muted);
             font-weight: 500;
         }
+
+        /* child label */
+        .info-item label:nth-child(2) {
+            color: #ffd09d;
+        }
+
+        /* child label */
+        .info-item a {
+            color: #28cfa5;
+            text-decoration: none;
+            white-space: nowrap;
+            font-size: 14px;
+        }
+
 
         .info-value {
             background: rgba(255, 255, 255, 0.03);
@@ -501,6 +515,7 @@
                 str_H1: "下一個BlockHash（H1）",
                 str_H2: "下一個BlockHash（H2）",
                 str_H3: "下一個BlockHash（H3）",
+                str_slot: "Slot",
                 str_player: "玩家數量",
                 str_round: "回合",
                 str_wallet: "錢包地址",
@@ -532,6 +547,7 @@
                 str_H1: "Next BlockHash（H1）",
                 str_H2: "Next BlockHash（H2）",
                 str_H3: "Next BlockHash（H3）",
+                str_slot: "Slot",
                 str_player: "Player Number",
                 str_round: "Round",
                 str_wallet: "Wallet Address",
@@ -632,41 +648,51 @@
         <div class="game-info-grid">
             <div class="info-item">
                 <label data-i18n="str_H_1">Previous BlockHash（H-1）</label>
-                <div class="info-value">
-                    <input id="blockHashAfterInp" value="">
-                </div>
+                <label id="slot_1Lab" data-value=""></label>
+                <a id="slot_1Link" href="" data-i18n="str_viewSolana">View on Solana →</a>
+            </div>
+            <div class="info-value">
+                <input id="blockHashAfterInp" value="">
             </div>
         </div>
         <div class="game-info-grid">
             <div class="info-item">
                 <label data-i18n="str_H0">Current BlockHash（H0）</label>
-                <div class="info-value">
-                    <input id="blockHashInp" value="">
-                </div>
+                <label id="slotLab" data-value=""></label>
+                <a id="slotLink" href="" data-i18n="str_viewSolana">View on Solana →</a>
+            </div>
+            <div class="info-value">
+                <input id="blockHashInp" value="">
             </div>
         </div>
         <div class="game-info-grid">
             <div class="info-item">
                 <label data-i18n="str_H1">Next BlockHash（H1）</label>
-                <div class="info-value">
-                    <input id="blockHashLast1Inp" value="">
-                </div>
+                <label id="slot1Lab" data-value=""></label>
+                <a id="slot1Link" href="" data-i18n="str_viewSolana">View on Solana →</a>
+            </div>
+            <div class="info-value">
+                <input id="blockHashLast1Inp" value="">
             </div>
         </div>
         <div class="game-info-grid">
             <div class="info-item">
                 <label data-i18n="str_H2">Next BlockHash（H2）</label>
-                <div class="info-value">
-                    <input id="blockHashLast2Inp" value="">
-                </div>
+                <label id="slot2Lab" data-value=""></label>
+                <a id="slot2Link" href="" data-i18n="str_viewSolana">View on Solana →</a>
+            </div>
+            <div class="info-value">
+                <input id="blockHashLast2Inp" value="">
             </div>
         </div>
         <div class="game-info-grid">
             <div class="info-item">
                 <label data-i18n="str_H3">Next BlockHash（H3）</label>
-                <div class="info-value">
-                    <input id="blockHashLast3Inp" value="">
-                </div>
+                <label id="slot3Lab" data-value=""></label>
+                <a id="slot3Link" href="" data-i18n="str_viewSolana">View on Solana →</a>
+            </div>
+            <div class="info-value">
+                <input id="blockHashLast3Inp" value="">
             </div>
         </div>
         <div class="game-info-grid">
@@ -675,13 +701,17 @@
                 <div class="info-value">
                     <input type="number" id="joinNum" min="2" max="3" value="2">
                 </div>
-            </div>
-            <div class="info-item">
                 <label data-i18n="str_round">Round</label>
                 <div class="info-value">
                     <input type="number" id="round" min="0" max="100" value="0">
                 </div>
             </div>
+<!--            <div class="info-item">-->
+<!--                <label data-i18n="str_round">Round</label>-->
+<!--                <div class="info-value">-->
+<!--                    <input type="number" id="round" min="0" max="100" value="0">-->
+<!--                </div>-->
+<!--            </div>-->
         </div>
 
         <div class="card-header">
@@ -717,6 +747,17 @@
     const copyCodeBtn = document.getElementById('copyCodeBtn');
     const dropdown = document.getElementById("dropdown");
     const dropdownBtn = document.getElementById('dropdownBtn');
+
+    const slot_1Lab = document.getElementById('slot_1Lab');
+    const slot_1Link = document.getElementById('slot_1Link');
+    const slotLab = document.getElementById('slotLab');
+    const slotLink = document.getElementById('slotLink');
+    const slot1Lab = document.getElementById('slot1Lab');
+    const slot1Link = document.getElementById('slot1Link');
+    const slot2Lab = document.getElementById('slot2Lab');
+    const slot2Link = document.getElementById('slot2Link');
+    const slot3Lab = document.getElementById('slot3Lab');
+    const slot3Link = document.getElementById('slot3Link');
 
     // bind event
     runBtn.addEventListener('click', onRunClick);
@@ -758,6 +799,17 @@
         if (!dropdown.contains(e.target)) closeMenu();
     });
 
+    slot_1Link.addEventListener('click', gotoSolana.bind(null, slot_1Lab));
+    slotLink.addEventListener('click', gotoSolana.bind(null, slotLab));
+    slot1Link.addEventListener('click', gotoSolana.bind(null, slot1Lab));
+    slot2Link.addEventListener('click', gotoSolana.bind(null, slot2Lab));
+    slot3Link.addEventListener('click', gotoSolana.bind(null, slot3Lab));
+
+    function gotoSolana(element, e) {
+        let url = "https://solscan.io/block/" + element.getAttribute('data-value');
+        window.open(url, '_blank');
+    }
+
     document.querySelectorAll('.dropdown-menu li').forEach(item => {
         item.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -778,6 +830,14 @@
         }, 1000);
     }
 
+    function switchLanguage(language) {
+        if (!translations[language]) return;
+        currentLang = language;
+        document.documentElement.setAttribute('language', currentLang);
+        updateURLLang(currentLang);
+        applyTranslations();
+    }
+
     async function onClickCopyCode() {
         try {
             let text = codeEditor.value + "\nExecution Results\n" + logs;
@@ -795,19 +855,29 @@
         const validatedPlayerCount = Math.min(Math.max(playerCount, 2), 3);
         const round = parseInt(params.get('round')) || 0;
         const blockHash_1 = params.get('h-1') || "";
+        const slot_1 = params.get('s-1') || "";
         const blockHash = params.get('h0') || "";
+        const slot = params.get('s0') || "";
         const blockHash_2 = params.get('h1') || "";
+        const slot_2 = params.get('s1') || "";
         const blockHash_3 = params.get('h2') || "";
+        const slot_3 = params.get('s2') || "";
         const blockHash_4 = params.get('h3') || "";
+        const slot_4 = params.get('s3') || "";
 
         const result = {
             playerCount: validatedPlayerCount,
             round: round,
             blockHash_1,
+            slot_1,
             blockHash,
+            slot,
             blockHash_2,
+            slot_2,
             blockHash_3,
+            slot_3,
             blockHash_4,
+            slot_4,
             userWallet: [],
         };
 
@@ -969,7 +1039,16 @@ return await main();
         const params = getUrlParams();
         setCodeAndInfo(params);
         restCode();
-
+        slot_1Lab.innerText = getTranslationsText('str_slot') + " " + params.slot_1;
+        slot_1Lab.setAttribute("data-value", params.slot_1);
+        slotLab.innerText = getTranslationsText('str_slot') + " " + params.slot;
+        slotLab.setAttribute("data-value", params.slot);
+        slot1Lab.innerText = getTranslationsText('str_slot') + " " + params.slot_2;
+        slot1Lab.setAttribute("data-value", params.slot_2);
+        slot2Lab.innerText = getTranslationsText('str_slot') + " " + params.slot_3;
+        slot2Lab.setAttribute("data-value", params.slot_3);
+        slot3Lab.innerText = getTranslationsText('str_slot') + " " + params.slot_4;
+        slot3Lab.setAttribute("data-value", params.slot_4);
         let userRoundList = await anonymous_fun.run(defaultCode);
         if (!isCodePass) {
             alert(`${getTranslationsText('str_errorStr2')}`);

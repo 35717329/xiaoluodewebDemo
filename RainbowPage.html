@@ -104,19 +104,25 @@
 
         .game-info-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            /*grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));*/
             gap: 16px;
-            /*align-items: end;*/
-            background-color: #0D1726;
-            /*padding: 16px;*/
+            align-items: end;
+            background-color: #0d1726;
+            padding: 8px 0;
             border-radius: 12px;
             margin-bottom: 8px;
         }
 
+        .addTem {
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        }
+
         .info-item {
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
+            flex-wrap: wrap;
             gap: 6px;
+            align-items: center;
         }
 
         .info-item label {
@@ -126,6 +132,38 @@
         }
 
         .info-item > div {
+            display: flex;
+            flex-direction: row;
+            gap: 6px;
+            /*white-space: nowrap;*/
+        }
+
+        /* child label */
+        .info-item label:nth-child(2) {
+            color: #ffd09d;
+        }
+
+        /* child label */
+        .info-item a {
+            color: #28cfa5;
+            text-decoration: none;
+            white-space: nowrap;
+            font-size: 14px;
+        }
+
+        .info-item2 {
+            display: flex;
+            flex-direction: column;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .info-item2 label {
+            font-size: 14px;
+            color: var(--muted);
+            font-weight: 500;
+        }
+
+        .info-item2 > div {
             display: flex;
             flex-direction: row;
             gap: 6px;
@@ -534,6 +572,8 @@
                 str_H1: "下一個BlockHash（H1）",
                 str_H2: "下一個BlockHash（H2）",
                 str_H3: "下一個BlockHash（H3）",
+                str_slot: "Slot",
+                str_viewSolana: "在Solana中查看 →",
                 str_remark: "以下數據根據\"JS代碼在線編輯\"執行後得到的結果",
                 str_remark1: "當前回合計算出的哈希值",
                 str_round1: "前一個回合",
@@ -569,6 +609,8 @@
                 str_H1: "Next BlockHash（H1）",
                 str_H2: "Next BlockHash（H2）",
                 str_H3: "Next BlockHash（H3）",
+                str_slot: "Slot",
+                str_viewSolana: "View on Solana →",
                 str_remark: "The following values are the results obtained after running the code through the \"Online JS Code Editor.\"",
                 str_remark1:"The hash value calculated in the current round",
                 str_round1:"Previous Round",
@@ -676,48 +718,58 @@
             <div class="game-info-grid">
                 <div class="info-item">
                     <label data-i18n="str_H_1">Previous BlockHash（H-1）</label>
-                    <div class="info-value">
-                        <input id="currHashH_1Inp" value="">
-                    </div>
+                    <label id="currSlot_1Lab" data-value=""></label>
+                    <a id="currSlot_1Link" href="" data-i18n="str_viewSolana">View on Solana →</a>
+                </div>
+                <div class="info-value">
+                    <input id="currHashH_1Inp" value="">
                 </div>
             </div>
             <div class="game-info-grid">
                 <div class="info-item">
                     <label data-i18n="str_H0">Current BlockHash（H0）</label>
-                    <div class="info-value">
-                        <input id="currHashH0Inp" value="">
-                    </div>
+                    <label id="currSlotLab" data-value=""></label>
+                    <a id="currSlotLink" href="" data-i18n="str_viewSolana">View on Solana →</a>
+                </div>
+                <div class="info-value">
+                    <input id="currHashH0Inp" value="">
                 </div>
             </div>
             <div class="game-info-grid">
                 <div class="info-item">
                     <label data-i18n="str_H1">Next BlockHash（H1）</label>
-                    <div class="info-value">
-                        <input id="currHashH1Inp" value="">
-                    </div>
+                    <label id="currSlot1Lab" data-value=""></label>
+                    <a id="currSlot1Link" href="" data-i18n="str_viewSolana">View on Solana →</a>
+                </div>
+                <div class="info-value">
+                    <input id="currHashH1Inp" value="">
                 </div>
             </div>
             <div class="game-info-grid">
                 <div class="info-item">
                     <label data-i18n="str_H2">Next BlockHash（H2）</label>
-                    <div class="info-value">
-                        <input id="currHashH2Inp" value="">
-                    </div>
+                    <label id="currSlot2Lab" data-value=""></label>
+                    <a id="currSlot2Link" href="" data-i18n="str_viewSolana">View on Solana →</a>
+                </div>
+                <div class="info-value">
+                    <input id="currHashH2Inp" value="">
                 </div>
             </div>
             <div class="game-info-grid">
                 <div class="info-item">
                     <label data-i18n="str_H3">Next BlockHash（H3）</label>
-                    <div class="info-value">
-                        <input id="currHashH3Inp" value="">
-                    </div>
+                    <label id="currSlot3Lab" data-value=""></label>
+                    <a id="currSlot3Link" href="" data-i18n="str_viewSolana">View on Solana →</a>
+                </div>
+                <div class="info-value">
+                    <input id="currHashH3Inp" value="">
                 </div>
             </div>
             <div class="card-header">
                 <h5 data-i18n="str_remark">The following values are the results obtained after running the code through the "Online JS Code Editor."</h5>
             </div>
             <div class="game-info-grid">
-                <div class="info-item">
+                <div class="info-item2">
                     <h4 data-i18n="str_remark1">The hash value calculated in the current round</h4>
                     <div class="info-value">
                         <input id="currHashInp" readonly value="">
@@ -732,48 +784,58 @@
             <div class="game-info-grid">
                 <div class="info-item">
                     <label data-i18n="str_H_1">Previous BlockHash（H-1）</label>
-                    <div class="info-value">
-                        <input id="lastHashH_1Inp" value="">
-                    </div>
+                    <label id="lastSlot_1Lab" data-value=""></label>
+                    <a id="lastSlot_1Link" href="" data-i18n="str_viewSolana">View on Solana →</a>
+                </div>
+                <div class="info-value">
+                    <input id="lastHashH_1Inp" value="">
                 </div>
             </div>
             <div class="game-info-grid">
                 <div class="info-item">
                     <label data-i18n="str_H0">Current BlockHash（H0）</label>
-                    <div class="info-value">
-                        <input id="lastHashH0Inp" value="">
-                    </div>
+                    <label id="lastSlotLab" data-value=""></label>
+                    <a id="lastSlotLink" href="" data-i18n="str_viewSolana">View on Solana →</a>
+                </div>
+                <div class="info-value">
+                    <input id="lastHashH0Inp" value="">
                 </div>
             </div>
             <div class="game-info-grid">
                 <div class="info-item">
                     <label data-i18n="str_H1">Next BlockHash（H1）</label>
-                    <div class="info-value">
-                        <input id="lastHashH1Inp" value="">
-                    </div>
+                    <label id="lastSlot1Lab" data-value=""></label>
+                    <a id="lastSlot1Link" href="" data-i18n="str_viewSolana">View on Solana →</a>
+                </div>
+                <div class="info-value">
+                    <input id="lastHashH1Inp" value="">
                 </div>
             </div>
             <div class="game-info-grid">
                 <div class="info-item">
                     <label data-i18n="str_H2">Next BlockHash（H2）</label>
-                    <div class="info-value">
-                        <input id="lastHashH2Inp" value="">
-                    </div>
+                    <label id="lastSlot2Lab" data-value=""></label>
+                    <a id="lastSlot2Link" href="" data-i18n="str_viewSolana">View on Solana →</a>
+                </div>
+                <div class="info-value">
+                    <input id="lastHashH2Inp" value="">
                 </div>
             </div>
             <div class="game-info-grid">
                 <div class="info-item">
                     <label data-i18n="str_H3">Next BlockHash（H3）</label>
-                    <div class="info-value">
-                        <input id="lastHashH3Inp" value="">
-                    </div>
+                    <label id="lastSlot3Lab" data-value=""></label>
+                    <a id="lastSlot3Link" href="" data-i18n="str_viewSolana">View on Solana →</a>
+                </div>
+                <div class="info-value">
+                    <input id="lastHashH3Inp" value="">
                 </div>
             </div>
             <div class="card-header">
                 <h5 data-i18n="str_remark">The following values are the results obtained after running the code through the "Online JS Code Editor."</h5>
             </div>
             <div class="game-info-grid">
-                <div class="info-item">
+                <div class="info-item2">
                     <h4 data-i18n="str_remark1">The hash value calculated in the previous round.</h4>
                     <div class="info-value">
                         <input id="lastHashInp" readonly value="">
@@ -784,8 +846,8 @@
 
 
         <div class="son-card">
-            <div class="game-info-grid">
-                <div class="info-item">
+            <div class="game-info-grid addTem">
+                <div class="info-item2">
                     <label data-i18n="str_colorSort">Color Sort</label>
                     <div class="info-value">
                         <input id="colorSortInp" value="">
@@ -793,7 +855,7 @@
                     <div id="colorSortDiv">
                     </div>
                 </div>
-                <div class="info-item">
+                <div class="info-item2">
                     <label data-i18n="str_boxSort">Box Sort</label>
                     <div class="info-value">
                         <input id="boxSortInp" value="">
@@ -801,7 +863,7 @@
                     <div id="boxSortDiv">
                     </div>
                 </div>
-                <div class="info-item">
+                <div class="info-item2">
                     <label data-i18n="str_cfgNum">Config Number</label>
                     <div class="info-value">
                         <input id="cfgNumInp" type="number" min="1" max="2" value="">
@@ -834,6 +896,16 @@
         lastH3: null,
         //hash
         lastHash: "",
+        //slot-1
+        lastSlot_1: null,
+        //slot0
+        lastSlot0: null,
+        //slot1
+        lastSlot1: null,
+        //slot2
+        lastSlot2: null,
+        //slot3
+        lastSlot3: null,
 
         //H-1
         currH_1: null,
@@ -847,6 +919,16 @@
         currH3: null,
         //hash
         currHash: "",
+        //slot-1
+        currSlot_1: null,
+        //slot0
+        currSlot0: null,
+        //slot1
+        currSlot1: null,
+        //slot2
+        currSlot2: null,
+        //slot3
+        currSlot3: null,
 
         //color order
         oriColorStr: null,
@@ -929,6 +1011,27 @@
     const dropdown = document.getElementById("dropdown");
     const dropdownBtn = document.getElementById('dropdownBtn');
 
+    const currSlot_1Lab = document.getElementById('currSlot_1Lab');
+    const currSlot_1Link = document.getElementById('currSlot_1Link');
+    const currSlotLab = document.getElementById('currSlotLab');
+    const currSlotLink = document.getElementById('currSlotLink');
+    const currSlot1Lab = document.getElementById('currSlot1Lab');
+    const currSlot1Link = document.getElementById('currSlot1Link');
+    const currSlot2Lab = document.getElementById('currSlot2Lab');
+    const currSlot2Link = document.getElementById('currSlot2Link');
+    const currSlot3Lab = document.getElementById('currSlot3Lab');
+    const currSlot3Link = document.getElementById('currSlot3Link');
+    const lastSlot_1Lab = document.getElementById('lastSlot_1Lab');
+    const lastSlot_1Link = document.getElementById('lastSlot_1Link');
+    const lastSlotLab = document.getElementById('lastSlotLab');
+    const lastSlotLink = document.getElementById('lastSlotLink');
+    const lastSlot1Lab = document.getElementById('lastSlot1Lab');
+    const lastSlot1Link = document.getElementById('lastSlot1Link');
+    const lastSlot2Lab = document.getElementById('lastSlot2Lab');
+    const lastSlot2Link = document.getElementById('lastSlot2Link');
+    const lastSlot3Lab = document.getElementById('lastSlot3Lab');
+    const lastSlot3Link = document.getElementById('lastSlot3Link');
+
     // bind event
     runBtn.addEventListener('click', onRunClick);
     clearOutputBtn.addEventListener('click', clearOutput);
@@ -998,6 +1101,23 @@
         if (!dropdown.contains(e.target)) closeMenu();
     });
 
+    currSlot_1Link.addEventListener('click', gotoSolana.bind(null, currSlot_1Lab));
+    currSlotLink.addEventListener('click', gotoSolana.bind(null, currSlotLab));
+    currSlot1Link.addEventListener('click', gotoSolana.bind(null, currSlot1Lab));
+    currSlot2Link.addEventListener('click', gotoSolana.bind(null, currSlot2Lab));
+    currSlot3Link.addEventListener('click', gotoSolana.bind(null, currSlot3Lab));
+    lastSlot_1Link.addEventListener('click', gotoSolana.bind(null, lastSlot_1Lab));
+    lastSlotLink.addEventListener('click', gotoSolana.bind(null, lastSlotLab));
+    lastSlot1Link.addEventListener('click', gotoSolana.bind(null, lastSlot1Lab));
+    lastSlot2Link.addEventListener('click', gotoSolana.bind(null, lastSlot2Lab));
+    lastSlot3Link.addEventListener('click', gotoSolana.bind(null, lastSlot3Lab));
+
+    function gotoSolana(element, e) {
+        console.log("eee  ", element);
+        let url = "https://solscan.io/block/" + element.getAttribute('data-value');
+        window.open(url, '_blank');
+    }
+
     document.querySelectorAll('.dropdown-menu li').forEach(item => {
         item.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -1016,6 +1136,14 @@
         setTimeout(() => {
             toast.style.display = 'none';
         }, 1000);
+    }
+
+    function switchLanguage(language) {
+        if (!translations[language]) return;
+        currentLang = language;
+        document.documentElement.setAttribute('language', currentLang);
+        updateURLLang(currentLang);
+        applyTranslations();
     }
 
     async function onClickCopyCode() {
@@ -1084,6 +1212,16 @@
         currHashH2Inp.value = data.currH2;
         currHashH3Inp.value = data.currH3;
         currHashInp.value = data.currHash;
+        currSlot_1Lab.setAttribute("data-value", data.currSlot_1);
+        currSlot_1Lab.innerText = getTranslationsText('str_slot') + " " + data.currSlot_1;
+        currSlotLab.setAttribute("data-value", data.currSlot0);
+        currSlotLab.innerText = getTranslationsText('str_slot') + " " + data.currSlot0;
+        currSlot1Lab.setAttribute("data-value", data.currSlot1);
+        currSlot1Lab.innerText = getTranslationsText('str_slot') + " " + data.currSlot1;
+        currSlot2Lab.setAttribute("data-value", data.currSlot2);
+        currSlot2Lab.innerText = getTranslationsText('str_slot') + " " + data.currSlot2;
+        currSlot3Lab.setAttribute("data-value", data.currSlot3);
+        currSlot3Lab.innerText = getTranslationsText('str_slot') + " " + data.currSlot3;
 
         lastHashH_1Inp.value = data.lastH_1;
         lastHashH0Inp.value = data.lastH0;
@@ -1092,6 +1230,17 @@
         lastHashH3Inp.value = data.lastH3;
         lastHashH3Inp.value = data.lastH3;
         lastHashInp.value = data.lastHash;
+        lastSlot_1Lab.setAttribute("data-value", data.lastSlot_1);
+        lastSlot_1Lab.innerText = getTranslationsText('str_slot') + " " + data.lastSlot_1;
+        lastSlotLab.setAttribute("data-value", data.lastSlot0);
+        lastSlotLab.innerText = getTranslationsText('str_slot') + " " + data.lastSlot0;
+        lastSlot1Lab.setAttribute("data-value", data.lastSlot1);
+        lastSlot1Lab.innerText = getTranslationsText('str_slot') + " " + data.lastSlot1;
+        lastSlot2Lab.setAttribute("data-value", data.lastSlot2);
+        lastSlot2Lab.innerText = getTranslationsText('str_slot') + " " + data.lastSlot2;
+        lastSlot3Lab.setAttribute("data-value", data.lastSlot3);
+        lastSlot3Lab.innerText = getTranslationsText('str_slot') + " " + data.lastSlot3;
+
     }
 
     function judgeLast() {
@@ -1117,11 +1266,23 @@
         data.lastH1 = params.lastH1;
         data.lastH2 = params.lastH2;
         data.lastH3 = params.lastH3;
+        data.lastSlot_1 = params.lastSlot_1;
+        data.lastSlot0 = params.lastSlot0;
+        data.lastSlot1 = params.lastSlot1;
+        data.lastSlot2 = params.lastSlot2;
+        data.lastSlot3 = params.lastSlot3;
+
         data.currH_1 = params.currH_1;
         data.currH0 = params.currH0;
         data.currH1 = params.currH1;
         data.currH2 = params.currH2;
         data.currH3 = params.currH3;
+        data.currSlot_1 = params.currSlot_1;
+        data.currSlot0 = params.currSlot0;
+        data.currSlot1 = params.currSlot1;
+        data.currSlot2 = params.currSlot2;
+        data.currSlot3 = params.currSlot3;
+
         data.oriColorStr = params.oriColorStr;
         data.cfgNum = params.cfgNum;
         data.boxStr = params.boxStr;
@@ -1158,12 +1319,22 @@
         result.lastH1 = params.get("lastH1");
         result.lastH2 = params.get("lastH2");
         result.lastH3 = params.get("lastH3");
+        result.lastSlot_1 = params.get("ls-1");
+        result.lastSlot0 = params.get("ls0");
+        result.lastSlot1 = params.get("ls1");
+        result.lastSlot2 = params.get("ls2");
+        result.lastSlot3 = params.get("ls3");
 
         result.currH_1 = params.get("currH-1");
         result.currH0 = params.get("currH0");
         result.currH1 = params.get("currH1");
         result.currH2 = params.get("currH2");
         result.currH3 = params.get("currH3");
+        result.currSlot_1 = params.get("cs-1");
+        result.currSlot0 = params.get("cs0");
+        result.currSlot1 = params.get("cs1");
+        result.currSlot2 = params.get("cs2");
+        result.currSlot3 = params.get("cs3");
 
         result.oriColorStr = params.get("oriColorStr");
         result.cfgNum = params.get("cfgNum");
@@ -1478,7 +1649,7 @@ return await main();
         let boxType = getColor(parseInt(data.boxStr.charAt(result.boxIndex)));
         let colorType = getColor(parseInt(result.colorSortStr.charAt(result.colorIndex)));
         let resultHtml = `
-                <div class="info-item">
+                <div class="info-item2">
                     <label>${getTranslationsText('str_sort2')}</label>
                     <div class="round-hash-item">
                         <span>${result.colorSortStr}</span>
@@ -1487,7 +1658,7 @@ return await main();
                         + currentSort +
                     `</div>
                 </div>
-                  <div class="info-item">
+                  <div class="info-item2">
                     <label>${getTranslationsText('str_sort3')}</label>
                     <div class="round-hash-item">
                         <span>${result.colorIndex + 1}</span>
@@ -1497,7 +1668,7 @@ return await main();
                         <div style="width: 10px; height: 10px; background-color: ` + colorType + `;"></div>
                     </div>
                 </div>
-                <div class="info-item">
+                <div class="info-item2">
                     <label>${getTranslationsText('str_sort5')}</label>
                     <div class="round-hash-item">
                         <span>${result.boxIndex + 1}</span>
