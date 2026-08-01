@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Hash Validator</title>
+    <style>
+        :root {
+            --bg: #0b1220;
+            --card: #0f1724;
+            --muted: #9aa4b2;
+            --accent: #00d1b2;
+            --accent-dark: #00a88f;
+            --glass: rgba(255, 255, 255, 0.03);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --text-soft: #6b7b98;
+            --link: #28cfa5;
+            --border-light: rgba(255, 255, 255, 0.05);
+            --text-secondary: #a3b1cc;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(180deg, #071122 0%, #0b1220 100%);
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            color: #e6eef6;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+            background: linear-gradient(120deg, #fff, #a5f3fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            color: var(--muted);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .card-header {
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .card-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .remark-list-item a {
+            color: #28CFA5;
+        }
+
+        .game-info-grid {
+            display: grid;
+            /*grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));*/
+            gap: 16px;
+            align-items: end;
+            background-color: #0D1726;
+            padding: 8px 0;
+            border-radius: 12px;
+            margin-bottom: 8px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .info-item label {
+            font-size: 14px;
+            color: var(--muted);
+            font-weight: 500;
+        }
+
+        /* child label */
+        .info-item label:nth-child(2) {
+            color: #ffd09d;
+        }
+
+        /* child label */
+        .info-item a {
+            color: #28cfa5;
+            text-decoration: none;
+            white-space: nowrap;
+            font-size: 14px;
+        }
+
+        .info-value {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            padding: 10px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            color: #C8D8F8;
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+
+        .info-value input {
+            width: 100%;
+            border: none;
+            background: transparent;
+            outline: none;
+            color: #C8D8F8;
+            font-size: 16px;
+        }
+
+        .info-value span {
+            color: #C8D8F8;
+        }
+
+        .result-info {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .result-info-card {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .result-info-card-item {
+            margin-bottom: 16px;
+        }
+
+        .result-info-card-item .block-number {
+            color: var(--text-soft);
+            font-family: monospace;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .result-info-card-item .title {
+            font-size: 16px;
+            line-height: 32px;
+            display: inline-block;
+            margin-bottom: 4px;
+            color: var(--muted);
+        }
+
+        .detail-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 6px;
+            font-size: 16px;
+            color: var(--muted);
+        }
+
+        .signature-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+        }
+
+        .signature-info .block-number {
+            color: var(--text-soft);
+            font-family: monospace;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .signature-info a {
+            color: var(--link);
+            text-decoration: none;
+            white-space: nowrap;
+            font-size: 18px;
+        }
+
+        .div-round {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            padding: 8px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            margin-bottom: 4px;
+            font-size: 14px;
+            color: var(--muted);
+        }
+
+        .round-hash-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            margin-bottom: 12px;
+            word-break: break-word;
+            gap: 12px;
+        }
+
+        .round-hash-item span:first-child {
+            font-family: monospace;
+            font-size: 12px;
+            color: #C8D8F8;
+            flex: 1;
+        }
+
+        .round-hash-item span:last-child {
+            color: #35DDDD;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .empty-rounds {
+            text-align: center;
+            color: var(--muted);
+            padding: 30px 20px;
+            font-size: 14px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        details {
+            border: 1px solid #e3ff6a;
+            border-radius: 8px;
+            padding: 0.5em 0.5em 0;
+        }
+
+        summary {
+            font-weight: bold;
+            margin: -0.5em -0.5em 0;
+            padding: 0.5em;
+        }
+
+        details[open] {
+            padding: 0.5em;
+        }
+
+        details[open] summary {
+            border-bottom: 1px solid #e3ff6a;
+            margin-bottom: 0.5em;
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin: 0 0 8px 0;
+        }
+
+        button {
+            background: #50fa7b;
+            border: none;
+            color: #1e1e2f;
+            font-weight: bold;
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.2s;
+            font-family: inherit;
+        }
+
+        .clear-btn {
+            background: #ff5555;
+            color: white;
+        }
+
+        .rest-btn {
+            background: #0e73ef;
+            color: white;
+        }
+
+        .div-code-textarea {
+            display: grid;
+            margin: 0 0 8px 0;
+        }
+
+        .code-textarea {
+            background: #1e1f29;
+            color: #f8f8f2;
+            border: 1px solid #44475a;
+            border-radius: 12px;
+            font-family: 'Fira Code', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            padding: 16px;
+            resize: none;
+            outline: none;
+            height: 300px;
+        }
+
+        .output-area {
+            background: #0f0f16;
+            border-radius: 12px;
+            padding: 12px 16px;
+            height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 13px;
+            border: 1px solid #44475a;
+            margin: 0 0 8px 0;
+        }
+
+        .output-title {
+            color: #bd93f9;
+            margin-bottom: 8px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            display: flex;
+            gap: 16px;
+            align-items: baseline;
+        }
+
+        .output-content {
+            color: #e9e9f4;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(255, 255, 255, 90%);
+            color: #000000;
+            padding: 20px 40px;
+            border-radius: 5px;
+            display: none;
+            z-index: 1000;
+        }
+
+        .dropdown {
+            position: fixed;
+            top: 32px;
+            right: 24px;
+        }
+
+        .dropdown-btn {
+            background: #2f2f4e;
+            border: none;
+            color: #ffffff;
+            border-radius: 40px;
+            padding: 8px 20px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: calc(100% + 6px);
+            right: 0;
+            min-width: 100px;
+            background: #2f2f4e;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+            padding: 6px 0;
+            list-style: none;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s, visibility 0.2s;
+            z-index: 1000;
+        }
+
+        .dropdown.open .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .dropdown-menu li {
+            padding: 8px 18px;
+            font-size: 14px;
+            color: #ffffff;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                padding: 16px;
+            }
+            .game-info-grid {
+                grid-template-columns: 1fr;
+            }
+            .round-hash-item {
+                flex-direction: column;
+                align-items: center;
+                gap: 8px;
+            }
+            .round-hash-item span:first-child {
+                text-align: center;
+                width: 100%;
+            }
+            .toolbar {
+                flex-wrap: wrap;
+            }
+
+            .dropdown {
+                position: fixed;
+                top: 0;
+                right: 0;
+            }
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+        }
+    </style>
+    <script>
+        const translations = {
+            zh_cn: {
+                str_title: "Hash 驗證器",
+                str_language: "語言",
+                str_runBtn: "&#9654; 運行",
+                str_clearBtn: "🗑 清除",
+                str_restBtn: "&#8635; 重置",
+                str_showBtn: "▼ 展開",
+                str_hideBtn: "▲ 收起",
+                str_copyBtn: "複製代碼",
+                str_codeEd: "JS代碼在線編輯",
+                str_codeEdInp: "編輯JS代碼",
+                str_clearLogInp: "📋 日誌輸出",
+                str_clearLog2Inp: "✨ 點擊 \"運行\" 查看結果。",
+                str_H_1: "前一個BlockHash（H-1）",
+                str_H0: "當前BlockHash（H0）",
+                str_H1: "下一個BlockHash（H1）",
+                str_H2: "下一個BlockHash（H2）",
+                str_H3: "下一個BlockHash（H3）",
+                str_slot: "Slot",
+                str_remark: "以下數據根據\"JS代碼在線編輯\"執行後得到的結果",
+                str_remark1: "當前回合計算出的哈希值",
+                str_errorStr1: "當前環境不支持 SHA-256 函數",
+                str_errorStr2: "JavaScript代碼執行异常，請先解决錯誤或重置代碼",
+                str_content1: "點擊\"運行\"按鈕，開始校驗",
+                str_preCont1: "第",
+                str_preCont2: "回合 · SHA256",
+                str_wallet: "錢包地址",
+                str_viewSolana: "在Solana中查看 →",
+                str_hashValueSp: "Hash值（Hex）",
+                str_hashValueSp2: "範圍（0-2）",
+            },
+            en: {
+                str_title: "Hash Validator",
+                str_language: "language",
+                str_runBtn: "&#9654; Run",
+                str_clearBtn: "🗑 Clear",
+                str_restBtn: "&#8635; Rest",
+                str_showBtn: "▼ Show",
+                str_hideBtn: "▲ hide",
+                str_copyBtn: "Copy Code",
+                str_codeEd: "Online JS Code Editor",
+                str_codeEdInp: "Write your JavaScript code here...",
+                str_clearLogInp: "📋 Logs Print",
+                str_clearLog2Inp: "✨ Click \"Run\" to view the result.",
+                str_H_1: "Previous BlockHash（H-1）",
+                str_H0: "Current BlockHash（H0）",
+                str_H1: "Next BlockHash（H1）",
+                str_H2: "Next BlockHash（H2）",
+                str_H3: "Next BlockHash（H3）",
+                str_slot: "Slot",
+                str_remark: "The following values are the results obtained after running the code through the \"Online JS Code Editor.\"",
+                str_remark1:"The hash value calculated in the current round",
+                str_errorStr1: "The current environment does not support SHA-256 function computation",
+                str_errorStr2: "A JavaScript execution error occurred. Please resolve the error or reset the code",
+                str_content1: "Click the \"Run\" button to start verification.",
+                str_preCont1: "No.",
+                str_preCont2: "Round · SHA256",
+                str_wallet: "Wallet Address",
+                str_viewSolana: "View on Solana →",
+                str_hashValueSp: "Hash Value (Hex)",
+                str_hashValueSp2: "Interval Value (0-2)",
+            }
+        };
+
+        let currentLang = "en";
+
+        function getLangFromURL() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get("language");
+        }
+
+        function updateURLLang(language) {
+            const url = new URL(window.location.href);
+            url.searchParams.set("language", language);
+            window.history.pushState({}, '', url);
+        }
+
+        function initLanguage() {
+            let language = getLangFromURL() || "en";
+            if (!translations[language]) {
+                language = "en";
+            }
+            currentLang = language;
+            document.documentElement.setAttribute("language", currentLang);
+            updateURLLang(currentLang);
+        }
+
+        function applyTranslations() {
+            document.querySelectorAll("[data-i18n]").forEach(el => {
+                const key = el.getAttribute("data-i18n");
+                if (translations[currentLang] && translations[currentLang][key] !== undefined) {
+                    // input placeholder
+                    if (el.placeholder !== undefined && el.getAttribute("data-i18n-placeholder") === "true") {
+                        el.placeholder = translations[currentLang][key];
+                    } else {
+                        el.innerHTML = translations[currentLang][key];
+                    }
+                }
+            });
+        }
+
+        function getTranslationsText(key) {
+            return translations[currentLang][key];
+        }
+    </script>
+</head>
+<body>
+<div id="toast" class="toast"></div>
+<div class="dropdown" id="dropdown">
+    <button class="dropdown-btn" id="dropdownBtn">
+        <span data-i18n="str_language">language</span>
+    </button>
+    <ul class="dropdown-menu">
+        <li data-value="en">English</li>
+        <li data-value="zh_cn">中文繁体</li>
+    </ul>
+</div>
+<div class="container">
+    <div class="header">
+        <h1 data-i18n="str_title">Hash Validator</h1>
+    </div>
+
+    <div class="card">
+        <div class="toolbar">
+            <button id="runBtn" data-i18n="str_runBtn">&#9654; Run</button>
+            <button id="clearOutputBtn" class="clear-btn" data-i18n="str_clearBtn">🗑 Clear</button>
+            <button id="restCodeBtn" class="rest-btn" data-i18n="str_restBtn">&#8635; Rest</button>
+            <button id="showCodeEditorBtn" class="rest-btn" data-i18n="str_showBtn">▼ Show</button>
+            <button id="copyCodeBtn" class="rest-btn" data-i18n="str_copyBtn">Copy Code</button>
+        </div>
+        <details id="codePanel">
+            <summary data-i18n="str_codeEd">Online JS Code Editor</summary>
+            <div class="div-code-textarea">
+                <textarea id="codeEditor" class="code-textarea" data-i18n="str_codeEdInp" placeholder="Write your JavaScript code here...">
+                </textarea>
+            </div>
+            <div class="output-area">
+                <div class="output-title">
+                    <span data-i18n="str_clearLogInp">📋 Logs Print</span>
+                </div>
+                <div id="outputContent" class="output-content" data-i18n="str_clearLog2Inp">✨ Click "Run" to view the result.</div>
+            </div>
+        </details>
+    </div>
+
+    <div class="card">
+        <div class="game-info-grid">
+            <div class="info-item">
+                <label data-i18n="str_H_1">Previous BlockHash（H-1）</label>
+                <label id="slot_1Lab" data-value=""></label>
+                <a id="slot_1Link" href="" data-i18n="str_viewSolana">View on Solana →</a>
+            </div>
+            <div class="info-value">
+                <input id="blockHashAfterInp" value="">
+            </div>
+        </div>
+        <div class="game-info-grid">
+            <div class="info-item">
+                <label data-i18n="str_H0">Current BlockHash（H0）</label>
+                <label id="slotLab" data-value=""></label>
+                <a id="slotLink" href="" data-i18n="str_viewSolana">View on Solana →</a>
+            </div>
+            <div class="info-value">
+                <input id="blockHashInp" value="">
+            </div>
+        </div>
+        <div class="game-info-grid">
+            <div class="info-item">
+                <label data-i18n="str_H1">Next BlockHash（H1）</label>
+                <label id="slot1Lab" data-value=""></label>
+                <a id="slot1Link" href="" data-i18n="str_viewSolana">View on Solana →</a>
+            </div>
+            <div class="info-value">
+                <input id="blockHashLast1Inp" value="">
+            </div>
+        </div>
+        <div class="game-info-grid">
+            <div class="info-item">
+                <label data-i18n="str_H2">Next BlockHash（H2）</label>
+                <label id="slot2Lab" data-value=""></label>
+                <a id="slot2Link" href="" data-i18n="str_viewSolana">View on Solana →</a>
+            </div>
+            <div class="info-value">
+                <input id="blockHashLast2Inp" value="">
+            </div>
+        </div>
+        <div class="game-info-grid">
+            <div class="info-item">
+                <label data-i18n="str_H3">Next BlockHash（H3）</label>
+                <label id="slot3Lab" data-value=""></label>
+                <a id="slot3Link" href="" data-i18n="str_viewSolana">View on Solana →</a>
+            </div>
+            <div class="info-value">
+                <input id="blockHashLast3Inp" value="">
+            </div>
+        </div>
+
+        <div class="card-header">
+            <h5 data-i18n="str_remark">The following values are the results obtained after running the code through the "Online JS Code Editor."</h5>
+        </div>
+
+        <div class="result-info">
+            <!-- <div class="result-info-card">
+                <div class="result-info-card-item">
+                    <div class="detail-label">
+                        <span data-i18n="str_wallet">Wallet Address</span>
+                        <div class="signature-info">
+                            <a id="solanaScanLink" target="_blank" data-i18n="str_viewSolana">View on Solana →</a>
+                        </div>
+                    </div>
+                    <div class="info-value">
+                        <input id="userWalletInp" value="">
+                    </div>
+                </div>
+            </div> -->
+            <div class="result-info-card">
+                <div class="result-info-card-item">
+                    <div>
+                        <span style="font-size: 14px; color: #3B5580;" data-i18n="str_hashValueSp">Hash Value (Hex)</span>
+                        <span style="font-size: 14px; color: #3B5580; float: right" data-i18n="str_hashValueSp2">Interval Value (0-2)</span>
+                    </div>
+                </div>
+                <div class="result-info-card-item" id="resultRound">
+                    <div class="empty-rounds"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    let logs = "";
+    let defaultCode = "";
+    //Did the code run successfully?
+    let isCodePass = false;
+    // get DOM element
+    const runBtn = document.getElementById('runBtn');
+    const clearOutputBtn = document.getElementById('clearOutputBtn');
+    const restCodeBtn = document.getElementById('restCodeBtn');
+    const showCodeEditorBtn = document.getElementById('showCodeEditorBtn');
+    const codeEditor = document.getElementById('codeEditor');
+    const outputContentDiv = document.getElementById('outputContent');
+    const codePanel = document.getElementById("codePanel");
+    const blockHashAfterInp = document.getElementById("blockHashAfterInp");
+    const blockHashInp = document.getElementById("blockHashInp");
+    const blockHashLast1Inp = document.getElementById("blockHashLast1Inp");
+    const blockHashLast2Inp = document.getElementById("blockHashLast2Inp");
+    const blockHashLast3Inp = document.getElementById("blockHashLast3Inp");
+    // const userWalletInp = document.getElementById("userWalletInp");
+    // const solanaScanLink = document.getElementById("solanaScanLink");
+    const dropdown = document.getElementById("dropdown");
+    const dropdownBtn = document.getElementById('dropdownBtn');
+
+    const slot_1Lab = document.getElementById('slot_1Lab');
+    const slot_1Link = document.getElementById('slot_1Link');
+    const slotLab = document.getElementById('slotLab');
+    const slotLink = document.getElementById('slotLink');
+    const slot1Lab = document.getElementById('slot1Lab');
+    const slot1Link = document.getElementById('slot1Link');
+    const slot2Lab = document.getElementById('slot2Lab');
+    const slot2Link = document.getElementById('slot2Link');
+    const slot3Lab = document.getElementById('slot3Lab');
+    const slot3Link = document.getElementById('slot3Link');
+
+    // bind event
+    runBtn.addEventListener('click', onRunClick);
+    clearOutputBtn.addEventListener('click', clearOutput);
+    restCodeBtn.addEventListener('click', restCode);
+    showCodeEditorBtn.addEventListener('click', showCodeEditor);
+    codePanel.addEventListener('toggle', setBtnText);
+    copyCodeBtn.addEventListener("click", onClickCopyCode);
+    // solanaScanLink.addEventListener("click", onClickLink);
+
+    dropdownBtn.addEventListener('click', toggleMenu);
+    function toggleMenu(e) {
+        e.stopPropagation();
+        dropdown.classList.toggle('open');
+    }
+
+    function closeMenu() {
+        dropdown.classList.remove('open');
+    }
+
+    //
+    document.addEventListener('click', (e) => {
+        //close setting language
+        if (!dropdown.contains(e.target)) closeMenu();
+    });
+
+    slot_1Link.addEventListener('click', gotoSolana.bind(null, slot_1Lab));
+    slotLink.addEventListener('click', gotoSolana.bind(null, slotLab));
+    slot1Link.addEventListener('click', gotoSolana.bind(null, slot1Lab));
+    slot2Link.addEventListener('click', gotoSolana.bind(null, slot2Lab));
+    slot3Link.addEventListener('click', gotoSolana.bind(null, slot3Lab));
+
+    function gotoSolana(element, e) {
+        let url = "https://solscan.io/block/" + element.getAttribute('data-value');
+        window.open(url, '_blank');
+    }
+
+    document.querySelectorAll('.dropdown-menu li').forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const language = item.getAttribute('data-value');
+            closeMenu();
+            switchLanguage(language);
+            window.location.reload();
+        });
+    });
+    //toast
+    function showToast(msg) {
+        const toast = document.getElementById('toast');
+        toast.innerText = msg.toString();
+        toast.style.display = 'block';
+        setTimeout(() => {
+            toast.style.display = 'none';
+        }, 1000);
+    }
+
+    function switchLanguage(language) {
+        if (!translations[language]) return;
+        currentLang = language;
+        document.documentElement.setAttribute('language', currentLang);
+        updateURLLang(currentLang);
+        applyTranslations();
+    }
+
+    async function onClickCopyCode() {
+        try {
+            let text = codeEditor.value + "\nExecution Results\n" + logs;
+            await navigator.clipboard.writeText(text);
+            showToast("Copy Success");
+        } catch (err) {
+            showToast("Copy Failed");
+            console.error('Unable to copy text: ', err);
+        }
+    }
+
+    //jump
+    // function onClickLink() {
+    //     let params = getUrlParams();
+    //     solanaScanLink.href = "https://solscan.io/account/" + params.userWallet;
+    // }
+
+    function getUrlParams() {
+        const result = {};
+        const params = new URLSearchParams(window.location.search);
+        result.round = parseInt(params.get('round')) || 0;
+        result.blockHash_1 = params.get('h-1') || "";
+        result.slot_1 = params.get('s-1') || "";
+        result.blockHash = params.get('h0') || "";
+        result.slot = params.get('s0') || "";
+        result.blockHash_2 = params.get('h1') || "";
+        result.slot2 = params.get('s1') || "";
+        result.blockHash_3 = params.get('h2') || "";
+        result.slot3 = params.get('s2') || "";
+        result.blockHash_4 = params.get('h3') || "";
+        result.slot4 = params.get('s3') || "";
+        result.userWallet = params.get('wallet') || "";
+        return result;
+    }
+
+    async function initPage() {
+        initLanguage();
+        applyTranslations();
+        let isSupport = showCryptoStatus();
+        if (!isSupport) {
+            alert(`${getTranslationsText('str_errorStr1')}`);
+            return;
+        }
+        const params = getUrlParams();
+        setCodeAndInfo(params);
+        restCode();
+        slot_1Lab.innerText = getTranslationsText('str_slot') + " " + params.slot_1;
+        slot_1Lab.setAttribute("data-value", params.slot_1);
+        slotLab.innerText = getTranslationsText('str_slot') + " " + params.slot;
+        slotLab.setAttribute("data-value", params.slot);
+        slot1Lab.innerText = getTranslationsText('str_slot') + " " + params.slot2;
+        slot1Lab.setAttribute("data-value", params.slot2);
+        slot2Lab.innerText = getTranslationsText('str_slot') + " " + params.slot3;
+        slot2Lab.setAttribute("data-value", params.slot3);
+        slot3Lab.innerText = getTranslationsText('str_slot') + " " + params.slot4;
+        slot3Lab.setAttribute("data-value", params.slot4);
+
+        let userRoundList = await anonymous_fun.run(defaultCode);
+        if (!isCodePass) {
+            alert(`${getTranslationsText('str_errorStr2')}`);
+            return;
+        }
+        for (let i = 0; i < userRoundList.length; i++) {
+            setUserRoundInfo(userRoundList[i]);
+        }
+    }
+
+    function initEmptyResult() {
+        document.getElementById('resultRound').innerHTML = `
+            <div class="empty-rounds">${getTranslationsText('str_content1')}</div>
+        `;
+    }
+
+    /**
+     * Set Block Information and Code
+     * Required Parameters
+     * blockHash_1 preHash
+     * blockHash currHash
+     * blockHash_2 next hash1
+     * blockHash_3 next hash2
+     * blockHash_4 next hash3
+     * userWallet user wallet
+     * round rounNnum
+     * @param params
+     */
+    function setCodeAndInfo(params) {
+        blockHashAfterInp.value = params.blockHash_1;
+        blockHashInp.value = params.blockHash;
+        blockHashLast1Inp.value = params.blockHash_2;
+        blockHashLast2Inp.value = params.blockHash_3;
+        blockHashLast3Inp.value = params.blockHash_4;
+        // userWalletInp.value = params.userWallet;
+        defaultCode =
+`//Calculate the hash of the current string.
+async function computeBaseHash(str) {
+    //1.Convert to a UTF-8 encoded byte sequence.
+    const encoder = new TextEncoder();
+    const bytes = encoder.encode(str);
+    //2.Byte Array
+    let bytesArr = await computeSha256(bytes);
+    //3.Concatenate hexadecimal strings
+    let hexString = bytesToHex(bytesArr);
+    console.log("Converted hexadecimal string: ",hexString);
+    return hexString;
+}
+
+//Calculate the SHA-256 value of a byte array.
+async function computeSha256(data) {
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    return new Uint8Array(hashBuffer);
+}
+
+//Convert a byte array to a hexadecimal string.
+function bytesToHex(bytes) {
+    return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+//Normalization Function
+async function normalizeHash(decoded) {
+    try {
+        const hashArray = Array.from(decoded);
+        let hashValue = 0n;
+        for (const byte of hashArray) {
+            hashValue = (hashValue << 8n) + BigInt(byte);
+        }
+        const maxValue = 1n << 256n;          // 2^256
+        // Use BigInt to calculate scaled values to avoid precision loss.
+        const scaledNumber = Number(hashValue) / Number(maxValue);
+        return scaledNumber;
+    } catch (e) {
+        console.error('NormalizeHash Fail: ', e);
+        throw new Error("normalizeHash Fail:" + e.message);
+    }
+}
+class Result {
+    roundNum = 0;
+    hexStr = "";
+    value = 0;
+}
+//Generate your own information based on a string and the round number.
+async function generateResult(str, roundNum) {
+    let resultList = [];
+    const encoder = new TextEncoder();
+    let previousHex = str;
+    for (let i = 0; i < 67; i++) {
+        let result = new Result();
+        // Encode a hexadecimal string into UTF-8 bytes.
+        const inputBytes = encoder.encode(previousHex);
+        const hashBytes = await computeSha256(inputBytes);
+        const hexStr = bytesToHex(hashBytes);
+        const normalized = await normalizeHash(hashBytes);
+        // console.log("Current ", i);
+        // console.log("Hexadecimal string ", hexStr);
+        // console.log("Random Value ", normalized);
+        result.roundNum = i + 1;
+        result.hexStr = hexStr;
+        result.value = parseInt(normalized * 3);
+        resultList.push(result);
+        previousHex = hexStr;
+    }
+
+    return resultList;
+}
+
+async function main() {
+    let resultList = [];
+    let str = "${params.blockHash_1}" + "${params.blockHash}" + "${params.blockHash_2}" + "${params.blockHash_3}" + "${params.blockHash_4}";
+    //let base = await computeBaseHash(str);
+    //console.log("Hexadecimal string： ",base);
+    //user wallet address
+    //let userPublicKey = "${params.userWallet}";
+    //let basePublicKey = base + userPublicKey;
+    //generate result
+    let result = await generateResult(str, ${params.round});
+    console.log("result  ", result);
+    resultList.push(result);
+    return resultList;
+}
+return await main();
+`;
+    }
+
+    function restCode() {
+        const params = getUrlParams();
+        setCodeAndInfo(params);
+        codeEditor.value = defaultCode;
+        initEmptyResult();
+        logs = "";
+    }
+
+    function showCodeEditor() {
+        codePanel.open = !codePanel.open;
+        setBtnText();
+    }
+
+    function setBtnText() {
+        if (codePanel.open) {
+            showCodeEditorBtn.innerText = `${getTranslationsText('str_hideBtn')}`;
+        } else {
+            showCodeEditorBtn.innerText = `${getTranslationsText('str_showBtn')}`;
+        }
+    }
+
+    //Used to store captured logs.
+    let capturedLogs = [];
+
+    //Run Button Click Handler
+    async function onRunClick(e) {
+        logs = "";
+        const params = getUrlParams();
+        //
+        let code = "";
+        if (blockHashAfterInp.value !== params.blockHash_1
+            || blockHashInp.value !== params.blockHash
+            || blockHashLast1Inp.value !== params.blockHash_2
+            || blockHashLast2Inp.value !== params.blockHash_3
+            || blockHashLast3Inp.value !== params.blockHash_4
+            // || userWalletInp.value !== params.userWallet
+            // || parseInt(roundInput.value) !== params.round
+        ) {
+            let obj = {};
+            obj.blockHash_1 = blockHashAfterInp.value;
+            obj.blockHash = blockHashInp.value;
+            obj.blockHash_2 = blockHashLast1Inp.value;
+            obj.blockHash_3 = blockHashLast2Inp.value;
+            obj.blockHash_4 = blockHashLast3Inp.value;
+            // obj.userWallet = userWalletInp.value;
+            obj.round = 1;
+            setCodeAndInfo(obj);
+            code = defaultCode;
+            codeEditor.value = code;
+        } else {
+            code = codeEditor.value;
+        }
+
+
+        let result = await anonymous_fun.run(code);
+        if (!isCodePass) {
+            alert(`${getTranslationsText('str_errorStr2')}`);
+        } else {
+            if (e !== undefined && e.type === 'click') {
+                for (let i = 0; i < result.length; i++) {
+                    setUserRoundInfo(result[i]);
+                }
+            }
+        }
+    }
+
+    //Update the user's results for each round.
+    function setUserRoundInfo(roundList) {
+        let resultHtml = '';
+        for (const round of roundList) {
+            resultHtml += `
+                <div class="div-round">${getTranslationsText('str_preCont1')}${round.roundNum} ${getTranslationsText('str_preCont2')}</div>
+                <div class="round-hash-item">
+                    <span>${round.hexStr}</span>
+                    <span>${round.value}</span>
+                </div>
+            `;
+        }
+
+        document.getElementById("resultRound").innerHTML = resultHtml;
+    }
+
+    //Clear Output Display (Does not clear the capture array; resets upon each run)
+    function clearOutputDisplay() {
+        outputContentDiv.innerHTML = '';
+    }
+
+    //Add an Output (Supports Multiple Types)
+    function addOutput(message, type = 'log') {
+        const line = document.createElement('div');
+        line.style.marginBottom = '4px';
+        line.style.borderBottom = '1px solid #2a2c3a';
+        line.style.paddingBottom = '4px';
+
+        let prefix = '';
+        if (type === 'error') prefix = '❌ ';
+        else if (type === 'warn') prefix = '⚠️ ';
+        else if (type === 'info') prefix = 'ℹ️ ';
+
+        const prefixSpan = document.createElement('span');
+        if (type === 'error') prefixSpan.style.color = '#ff79c6';
+        else if (type === 'warn') prefixSpan.style.color = '#f1fa8c';
+        else prefixSpan.style.color = '#8be9fd';
+
+        prefixSpan.textContent = prefix;
+
+        const messageSpan = document.createElement('span');
+        messageSpan.style.color = '#f8f8f2';
+        // Convert objects, arrays, etc., into human-readable strings.
+        let displayMsg;
+        try {
+            if (typeof message === 'object') {
+                displayMsg = JSON.stringify(message, null, 2);
+            } else {
+                displayMsg = String(message);
+            }
+        } catch(e) {
+            displayMsg = String(message);
+        }
+
+        logs += (displayMsg + "\n");
+        messageSpan.textContent = displayMsg;
+
+        line.appendChild(prefixSpan);
+        line.appendChild(messageSpan);
+        outputContentDiv.appendChild(line);
+        outputContentDiv.parentElement.parentElement.scrollTop = outputContentDiv.parentElement.parentElement.scrollHeight;
+    }
+
+    // Clear Output (Clears display only; does not clear console history)
+    function clearOutput() {
+        outputContentDiv.innerHTML = '';
+        addOutput('🧹 Output cleared. Click "Run Code" to execute again.', 'info');
+        logs = "";
+    }
+
+    const anonymous_fun = (function() {
+        // Save the original console methods.
+        const originalConsole = {
+            log: console.log,
+            error: console.error,
+            warn: console.warn,
+            info: console.info
+        };
+
+        // The core function for running the code
+        // The Core Function for Asynchronous Code Execution
+        async function runCodeAsync(code) {
+            // 1. Reset capture log array
+            capturedLogs = [];
+
+            // 2. Temporarily Replace Console Methods
+            console.log = (...args) => {
+                capturedLogs.push({ type: 'log', args });
+                originalConsole.log(...args);
+            };
+            console.error = (...args) => {
+                capturedLogs.push({ type: 'error', args });
+                originalConsole.error(...args);
+            };
+            console.warn = (...args) => {
+                capturedLogs.push({ type: 'warn', args });
+                originalConsole.warn(...args);
+            };
+            console.info = (...args) => {
+                capturedLogs.push({ type: 'info', args });
+                originalConsole.info(...args);
+            };
+
+            // 3. Clear Output Display Area (UI)
+            clearOutputDisplay();
+
+            let executionError = null;
+            let result = undefined;
+            try {
+                //Wrap and execute as an async function.
+                const asyncFunction = new Function(`
+                    return (async function() {
+                        ${code}
+                    })();
+                `);
+                result = await asyncFunction();
+                //If there is a return value and it is not `undefined`, print it to the console as well.
+                if (result !== undefined) {
+                    capturedLogs.push({ type: 'log', args: ['Result =>', result] });
+                }
+                isCodePass = true;
+            } catch (err) {
+                isCodePass = false;
+                executionError = err;
+                capturedLogs.push({ type: 'error', args: [err.message || err] });
+            } finally {
+                // 6. Restore Original Console
+                console.log = originalConsole.log;
+                console.error = originalConsole.error;
+                console.warn = originalConsole.warn;
+                console.info = originalConsole.info;
+            }
+
+            // 7. Render all captured logs to the output area.
+            for (const log of capturedLogs) {
+                //Merge parameters into a single string (simple handling)
+                const message = log.args.map(arg => {
+                    if (typeof arg === 'object') {
+                        try {
+                            return JSON.stringify(arg);
+                        } catch(e) {
+                            return String(arg);
+                        }
+                    }
+                    return String(arg);
+                }).join(' ');
+                addOutput(message, log.type);
+            }
+
+            // 8.If an error occurs during execution, provide an additional prompt.
+            if (executionError) {
+                addOutput(`Execution Exception: ${executionError.message}`, 'error');
+            }
+            return result;
+        }
+
+        // Return the functions that need to be exposed. Since the result of `new Function` is required to render the interface,
+        // the function responsible for executing the code must be exposed to the top level for use.
+        return {
+            run: runCodeAsync
+        };
+    })();
+
+    document.addEventListener('DOMContentLoaded', initPage);
+
+    // Quickly detect and display browser information.
+    function showCryptoStatus() {
+        const status = {
+            hasCrypto: !!window.crypto,
+            hasSubtle: !!(window.crypto && window.crypto.subtle),
+            hasDigest: !!(window.crypto && window.crypto.subtle && crypto.subtle.digest),
+            isSecureContext: window.isSecureContext || false,
+            userAgent: navigator.userAgent
+        };
+
+        console.log('Crypto status:', status);
+
+        if (!status.hasCrypto) {
+            console.log('❌ Not Support Crypto API');
+        } else if (!status.hasSubtle) {
+            console.log('⚠️ Supports basic crypto, but does not support Web Crypto API');
+            console.log('   Please upgrade your browser.: Chrome 37+, Firefox 34+, Safari 11+');
+        } else if (!status.isSecureContext) {
+            console.log('⚠️ Web Crypto API need HTTPS or localhost');
+            console.log('   Current Environment:', location.protocol);
+        } else {
+            console.log('✅ Support Web Crypto API');
+        }
+
+        return status;
+    }
+</script>
+</body>
+</html>
