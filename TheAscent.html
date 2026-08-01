@@ -925,7 +925,7 @@ async function generateResult(str, roundNum) {
     let resultList = [];
     const encoder = new TextEncoder();
     let previousHex = str;
-    for (let i = 0; i < 67; i++) {
+    for (let i = 0; i < roundNum; i++) {
         let result = new Result();
         // Encode a hexadecimal string into UTF-8 bytes.
         const inputBytes = encoder.encode(previousHex);
