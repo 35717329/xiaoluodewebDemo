@@ -656,7 +656,7 @@
         </div>
 
         <div class="result-info">
-            <!-- <div class="result-info-card">
+            <div class="result-info-card">
                 <div class="result-info-card-item">
                     <div class="detail-label">
                         <span data-i18n="str_wallet">Wallet Address</span>
@@ -668,7 +668,7 @@
                         <input id="userWalletInp" value="">
                     </div>
                 </div>
-            </div> -->
+            </div>
             <div class="result-info-card">
                 <div class="result-info-card-item">
                     <div>
@@ -702,8 +702,8 @@
     const blockHashLast1Inp = document.getElementById("blockHashLast1Inp");
     const blockHashLast2Inp = document.getElementById("blockHashLast2Inp");
     const blockHashLast3Inp = document.getElementById("blockHashLast3Inp");
-    // const userWalletInp = document.getElementById("userWalletInp");
-    // const solanaScanLink = document.getElementById("solanaScanLink");
+    const userWalletInp = document.getElementById("userWalletInp");
+    const solanaScanLink = document.getElementById("solanaScanLink");
     const dropdown = document.getElementById("dropdown");
     const dropdownBtn = document.getElementById('dropdownBtn');
 
@@ -725,7 +725,7 @@
     showCodeEditorBtn.addEventListener('click', showCodeEditor);
     codePanel.addEventListener('toggle', setBtnText);
     copyCodeBtn.addEventListener("click", onClickCopyCode);
-    // solanaScanLink.addEventListener("click", onClickLink);
+    solanaScanLink.addEventListener("click", onClickLink);
 
     dropdownBtn.addEventListener('click', toggleMenu);
     function toggleMenu(e) {
@@ -793,10 +793,10 @@
     }
 
     //jump
-    // function onClickLink() {
-    //     let params = getUrlParams();
-    //     solanaScanLink.href = "https://solscan.io/account/" + params.userWallet;
-    // }
+    function onClickLink() {
+        let params = getUrlParams();
+        solanaScanLink.href = "https://solscan.io/account/" + params.userWallet;
+    }
 
     function getUrlParams() {
         const result = {};
